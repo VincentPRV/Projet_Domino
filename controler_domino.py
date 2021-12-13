@@ -1,3 +1,4 @@
+import random
 import beans_domino as beans
 from random import randint, sample
 
@@ -20,13 +21,14 @@ class Partie:
             [List]: List de dominos
         """
         jeux_complet = []
-        for i in range(0, 6):
+
+        for i in range(0, 7):
             j = 0
             for j in range (0, i):
                 jeux_complet.append(beans.Domino(j, i))
+            jeux_complet.append(beans.Domino(i, i))
         return jeux_complet
     
-
     def __init__(self):
         self._joueurs = []
         self._pioche = None
@@ -34,7 +36,7 @@ class Partie:
 
     def ajouter_joueur(self, joueur):
         if len(self._joueurs) < 7:
-            self._joueurs.append(joueur)
+            self._joueurs.append(beans.Joueur(joueur))
         else :
             raise Exception("Il ne peut pas y avoir plus de 6 joueurs")
 
@@ -71,4 +73,50 @@ class Partie:
             domino = sample(self._pioche, 1)
             self._pioche.remove(domino)
         return domino
+
+    def affiche_plateau(self):
+        for domino in self._plateau:
+            print(domino, end="")
+        print("")
+    
+    def affiche_joueurs_mains(self):
+        for joueur in self._joueurs:
+            print(joueur)
+
+    def affiche_pioche(self):
+        print(f"Pioche:{len(self._pioche)}=>{self._pioche}")
+    
+    def ajouter_domino(self, domino, position):
+        ajout_success = False
+        if position == "droite":
+            # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
+            domino_plateau = self._plateau[-1]
+            if domino.valeur_a_gauche == domino_plateau.valeur_a_droite:
+                self._plateau.append(domino)
+                ajout_success = True
+        elif position == "gauche":
+            domino_plateau = self._plateau[0]
+            if domino.valeur_a_droite == domino_plateau.valeur_a_gauche:
+                self._plateau.insert(0, domino)
+                ajout_success = True
+        else:
+            raise Exception("Position non gérée pour l'instant", position)
+        return ajout_success
+
+
+def test_partie():
+    partie1 = Partie()
+    partie1.ajouter_joueur("Vincent")
+    partie1.ajouter_joueur("Aurélie")
+    partie1.ajouter_joueur("Toto")
+    partie1.affiche_joueurs_mains()
+    partie1.distribue_dominos()
+    partie1.affiche_joueurs_mains()
+    partie1.affiche_pioche()
+    
+
+# jeux = Partie.jeux_complet()
+# print(len(jeux), jeux)
+
+test_partie()
    

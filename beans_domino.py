@@ -22,7 +22,7 @@ class Domino:
         if generate:
             valeur_a_gauche = random.randint(0, 7)
             valeur_a_droite = random.randint(0, 7)
-        if valeur_a_gauche > 6 | valeur_a_gauche < 0 | valeur_a_droite > 6 | valeur_a_droite < 0:
+        if valeur_a_gauche > 6 or valeur_a_gauche < 0 or valeur_a_droite > 6 or valeur_a_droite < 0:
             raise Exception("La valeur doit être entre 0 et 6 (inclus)")
         self._valeur_a_gauche = valeur_a_gauche
         self._valeur_a_droite = valeur_a_droite
@@ -77,15 +77,12 @@ class Joueur:
 
     def retirer_domino(self, index_domino):
         self._dominos_en_main.pop(index_domino)
-    
-    def point_en_main(self):
-        pass
 
     def str_main(self):
         main = ""
         for domino in self._dominos_en_main:
             main += f"{domino},"
-        return main
+        return main[:-1]
 
     @property
     def dominos_en_main(self):
@@ -107,4 +104,23 @@ class Joueur:
         return str(self)
 
     def __str__(self):
-        return f"{self.name}:" + self.str_main()
+        return f"{self.name}: {len(self._dominos_en_main)}=>" + self.str_main()
+
+
+
+
+def test_domino():
+    domino = Domino(5, 6)
+    print(domino)
+    domino.inverse()
+    print(domino)
+
+def test_joueur():
+    j1 = Joueur("Player1")
+    print(j1)
+    j1.ajouter_domino(Domino(5, 6))
+    j1.ajouter_domino(Domino(6, 6))
+    j1.ajouter_domino(Domino(3, 2))
+    print(j1)
+    j1.retirer_domino(1)
+    print(j1)
