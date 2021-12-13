@@ -58,54 +58,53 @@ class Domino:
         return self._valeur_a_droite
 
     @valeur_a_droite.setter
-    def b(self, valeur_a_droite):
+    def valeur_a_droite(self, valeur_a_droite):
         raise Exception("La valeur ne peut pas être modifiée")
 
     def __str__(self):
         return f"[{self.valeur_a_gauche}:{self.valeur_a_droite}]"
 
 
-class Plateau:
-    def __init__(self):
-        pass
-
-
 class Joueur:
-    def __init__(self, name):
-        self._dominos_en_main = {}
-        self._name = name
 
-    def addDomino(self, new_domino):
+    def __init__(self, name, type="humain"):
+        self._dominos_en_main = []
+        self.name = name
+        self._type = type
+        
+    def ajouter_domino(self, new_domino):
+        self._dominos_en_main.append(new_domino)
+
+    def retirer_domino(self, index_domino):
+        self._dominos_en_main.pop(index_domino)
+    
+    def point_en_main(self):
         pass
 
-class Partie:
+    def str_main(self):
+        main = ""
+        for domino in self._dominos_en_main:
+            main += f"{domino},"
+        return main
 
-    def __init__(self, nb_joueurs=2):
-        self._nb_joueurs = nb_joueurs
-        # TODO : initialiser la pioche dans la partie ou dans le plateau ?
-        self._pioche = None
-        self._plateau = Plateau()
-        self._joueurs = {}
-        # TODO : vérifier si le ça prend bien le dernier élément
-        for i in range (1, nb_joueurs+1):
-            self._joueurs['Joueur'+i] = Joueur('Joueur'+i)
-        # TODO : distribuer les dominos
+    @property
+    def dominos_en_main(self):
+        return self._dominos_en_main.copy()
 
-    def distribue_dominos(self):
-        """
-        2 joueurs chacun prend 7 dominos, à 3 et 4 joueurs chacun prend 6 dominos, à 5 et 6 joueurs chacun prend 4 dominos.
-        """
-        pass
+    @dominos_en_main.setter
+    def dominos_en_main(self, dominos_en_main):
+        self._dominos_en_main = dominos_en_main
 
-    def jeux_complet():
-        """Génère une boite de domino complète
+    @property
+    def type(self):
+        return self._type
 
-        Returns:
-            [List]: List de dominos
-        """
-        jeux_complet = []
-        for i in range(0, 6):
-            j = 0
-            for j in range (0, i):
-                jeux_complet.append(Domino(j, i))
-        return jeux_complet
+    @type.setter
+    def type(self, type):
+        raise Exception("Le type de joueur ne peut pas être modifié")
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return f"{self.name}:" + self.str_main()
