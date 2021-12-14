@@ -154,11 +154,39 @@ def test_partie():
     partie1.distribue_dominos()
     partie1.affiche_joueurs_mains()
     partie1.affiche_pioche()
-    # partie1.ajouter_domino(Domino(1,0))
     print( "premier joueur = ", partie1.premier_joueur())
 
-jeux = Partie.jeux_complet()
-print(len(jeux), jeux)
+# jeux = Partie.jeux_complet()
+# print(len(jeux), jeux)
 
-test_partie()
+# test_partie()
    
+
+def test_premier_joueur():
+    print("Test sur la définition du premier joueur")
+    j1=Joueur('JoueurUn')
+    j1.ajouter_domino(Domino(5, 6))
+    j1.ajouter_domino(Domino(3, 4))
+    j1.ajouter_domino(Domino(3, 2))
+    j2=Joueur('JoueurDeux')
+    j2.ajouter_domino(Domino(4 ,2))
+    j2.ajouter_domino(Domino(6 ,2))
+    j2.ajouter_domino(Domino(1 ,5))
+    partie1 = Partie()
+    partie1.ajouter_joueur(j1)
+    partie1.ajouter_joueur(j2)
+    partie1.affiche_joueurs_mains()
+    print( "le premier joueur est : ",partie1.premier_joueur())
+    # assert Partie
+    # assert mon_domino.valeur_a_gauche in range(0, 7)
+    # assert mon_domino.valeur_a_droite in range(0, 7)
+    # mon_domino = Domino(0, 5)
+    # assert mon_domino.valeur_a_gauche == 0
+    # assert mon_domino.valeur_a_droite == 5
+    # mon_autre_domino = Domino(1, 4)
+    # assert mon_autre_domino.__repr__() == '[1:4]'
+    # assert mon_domino.__repr__() == '[ :5]'
+    # print(mon_domino, mon_autre_domino)
+
+
+test_premier_joueur()

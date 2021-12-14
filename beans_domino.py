@@ -96,7 +96,7 @@ class Joueur:
         
     def maxi_domino(self):
         max_score= None
-        for domino in self._dominos_en_main:
+        for domino in self.dominos_en_main:
             if max_score == None:
                 max_score = domino.score()
             else :
