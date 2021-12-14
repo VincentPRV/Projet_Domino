@@ -139,7 +139,7 @@ class Joueur:
 
 
 def test_domino_constructeur():
-    # Test constructeur
+    print("Domino > constucteur et repr")
     mon_domino = Domino()
     assert mon_domino.valeur_a_gauche in range(0, 7)
     assert mon_domino.valeur_a_droite in range(0, 7)
@@ -152,6 +152,7 @@ def test_domino_constructeur():
     print(mon_domino, mon_autre_domino)
 
 def test_domino_constructeur_erreur():
+    print("Domino > constucteur > exception")
     # Doit lever une exception
     try:
         mon_faux_domino = Domino(7, 7)
@@ -170,7 +171,7 @@ def test_domino_constructeur_erreur():
         assert True
 
 def test_domino_inverse():
-    # Test inverse()
+    print("Domino > inverse()")
     mon_domino = Domino(0, 5)
     print(mon_domino)
     mon_domino.inverse()
@@ -178,14 +179,31 @@ def test_domino_inverse():
     assert mon_domino.valeur_a_droite == 0
     print(mon_domino)
 
+def test_domino_score():
+    print("Domino > score()")
+    mon_autre_domino = Domino(1, 4)
+    assert mon_autre_domino.score() == 5
+
+def test_domino_est_compatible():
+    print("Domino > est_compatible()")
+    mon_domino = Domino(0, 5)
+    assert mon_domino.est_compatible(4) == True
+    mon_autre_domino = Domino(1, 4)
+    assert mon_autre_domino.est_compatible(4) == True
+    assert mon_autre_domino.est_compatible(5) == False
+    assert mon_autre_domino.est_compatible(0) == True
+
 
 def test_domino():
     test_domino_constructeur()
     test_domino_constructeur_erreur()
     test_domino_inverse()
+    test_domino_score()
+    test_domino_est_compatible()
+    print("Domino > END")
     
 
-# test_domino()
+test_domino()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # JOUEURS
