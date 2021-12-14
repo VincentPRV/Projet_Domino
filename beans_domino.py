@@ -91,8 +91,12 @@ class Joueur:
     def ajouter_domino(self, new_domino):
         self._dominos_en_main.append(new_domino)
 
-    def retirer_domino(self, index_domino):
-        self._dominos_en_main.pop(index_domino)
+    def retirer_domino(self, domino_a_retirer):
+        if domino_a_retirer is not None:
+            if isinstance(domino_a_retirer, int):
+                self._dominos_en_main.pop(domino_a_retirer)
+            elif isinstance(domino_a_retirer, Domino):
+                self._dominos_en_main.remove(domino_a_retirer)
         
     def maxi_domino(self):
         max_score= None
@@ -116,6 +120,13 @@ class Joueur:
                 elif domino.valeur_a_droite > maxi.valeur_a_droite:
                     maxi = domino
         return maxi
+
+    def score(self):
+        score = 0
+        if self._dominos_en_main is not None:
+            for domino in self._dominos_en_main:
+                score += domino.score()
+        return score
 
     def str_main(self):
         main = ""
