@@ -1,4 +1,3 @@
-import random
 from beans_domino import *
 from random import randint, sample
 

@@ -202,16 +202,22 @@ def test_domino_est_compatible():
     assert mon_autre_domino.est_compatible(5) == False
     assert mon_autre_domino.est_compatible(0) == True
 
+def test_domino_equals():
+    print("Domino > equals()")
+    mon_domino = Domino()
+    assert mon_domino == mon_domino
+    assert mon_domino != Domino(0, 5)
 
 def test_domino():
+    print("Domino > START")
     test_domino_constructeur()
     test_domino_constructeur_erreur()
     test_domino_inverse()
     test_domino_score()
     test_domino_est_compatible()
+    test_domino_equals()
     print("Domino > END")
     
-
 # test_domino()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,7 +256,7 @@ def test_joueur_retirer_domino(joueur=None):
     if joueur is None:
         joueur = test_joueur_ajouter_domino()
     
-    pos = 1
+    pos = 0
     for i in range(len(joueur.dominos_en_main)):
         domino = joueur.dominos_en_main[pos]
         joueur.retirer_domino(pos)
@@ -274,7 +280,7 @@ def test_joueur_maxi_double():
     for i in range (6):
         j1.ajouter_domino(Domino(i, i))  
         maxi = j1.maxi_double()
-        assert maxi.score == i*2
+        assert maxi.score() == i*2
 
     j1 = Joueur("Player")
     maxi = j1.maxi_double()
@@ -288,21 +294,16 @@ def test_joueur_maxi_double():
 
     j1.ajouter_domino(Domino(4,4))
     maxi = j1.maxi_double()
-    assert maxi.score == 8
+    assert maxi.score() == 8
 
 
 def test_joueur():
+    print("Joueur > START")
     test_joueur_constructeur()
     test_joueur_exception()
     j1 = test_joueur_ajouter_domino()
     test_joueur_retirer_domino()
     test_joueur_maxi_double()
-
-    
-    # print("Maxi double:", j1_double)
-    # print("Domino not equals",j1_double == Domino(5, 5))
-    # print("Domino equals",j1_double == Domino(6, 6))
-    # print(j1)
-
+    print("Joueur > END")
 
 # test_joueur()
