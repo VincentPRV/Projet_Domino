@@ -96,13 +96,16 @@ class Joueur:
         
     def maxi_domino(self):
         max_score= None
+        max_domino = None
         for domino in self.dominos_en_main:
             if max_score == None:
                 max_score = domino.score()
+                max_domino = domino
             else :
                 if max_score is not None and max_score < domino.score() :
                     max_score = domino.score()
-        return max_score
+                    max_domino = domino
+        return max_domino
               
     def maxi_double(self):
         maxi = None

@@ -174,24 +174,24 @@ class Partie:
                   
         Returns:
             [Joueur]: Le joueur qui doit commencer la partie
+            [Domino] : Le domino que doit jouer le joueur
         """
-        double_domino = None 
-        valeur_max = None
+        premier_domino = None 
         premier_joueur = None
         pos = 0
         for joueur in self._joueurs:
             # On vérifie la présence de double pour chaque joueurs, en gardant le plus grand
-            if double_domino == None:
-                # On défini la valeur de double_domino par la première valeur trouvé
-                double_domino = joueur.maxi_double()
-                if double_domino is not None:
+            if premier_domino == None:
+                # On défini la valeur de premier_domino par la première valeur trouvé
+                premier_domino = joueur.maxi_double()
+                if premier_domino is not None:
                     premier_joueur = joueur
                     self._joueur_courant_position = pos
             else :
                 # On vérifie maintenant si les nouveaux doubles trouvé sont plus grands que la valeur enregistré
                 double_joueur = joueur.maxi_double()
-                if double_joueur is not None and double_joueur.score() > double_domino.score() :
-                    double_domino = joueur.maxi_double()
+                if double_joueur is not None and double_joueur.score() > premier_domino.score() :
+                    premier_domino = double_joueur
                     premier_joueur = joueur
                     self._joueur_courant_position = pos
             pos += 1
@@ -201,17 +201,18 @@ class Partie:
         if premier_joueur is None :
             pos = 0
             for joueur in self._joueurs:
-                if valeur_max == None:
-                    valeur_max = joueur.maxi_domino()
+                if premier_domino == None:
+                    premier_domino = joueur.maxi_domino()
                     premier_joueur = joueur
                     self._joueur_courant_position = pos
                 else :
-                    if  joueur.maxi_domino() is not None and joueur.maxi_domino() > valeur_max :
-                        valeur_max = joueur.maxi_domino()
+                    joueur_max_dom = joueur.maxi_domino()
+                    if  joueur_max_dom is not None and joueur_max_dom.score() > premier_domino.score() :
+                        premier_domino = joueur_max_dom
                         premier_joueur = joueur
                         self._joueur_courant_position = pos
                 pos += 1
-        return premier_joueur
+        return premier_joueur, premier_domino
     
     @property
     def joueurs(self):
