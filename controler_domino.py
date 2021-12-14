@@ -28,10 +28,11 @@ class Partie:
             jeux_complet.append(Domino(i, i))
         return jeux_complet
     
-    def __init__(self):
+    def __init__(self, partie_name=""):
         self._joueurs = []
         self._pioche = None
         self._plateau = []
+        self.partie_name = partie_name
 
     def ajouter_joueur(self, joueur):
         if len(self._joueurs) < 7:
