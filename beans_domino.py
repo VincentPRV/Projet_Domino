@@ -45,6 +45,9 @@ class Domino:
         """
         return self._valeur_a_droite == valeur or self._valeur_a_gauche == valeur
 
+    def est_double(self):
+        return self._valeur_a_droite == self._valeur_a_gauche
+    
     @property
     def valeur_a_gauche(self):
         return self._valeur_a_gauche
@@ -63,6 +66,16 @@ class Domino:
 
     def __str__(self):
         return f"[{self.valeur_a_gauche}:{self.valeur_a_droite}]"
+    
+    def __eq__(self, other):
+        
+        if type(other) != type(self):
+            return False
+
+        # On vérifie l'égalité dans les deux sens
+        equa = self.valeur_a_droite == other.valeur_a_droite and self.valeur_a_gauche == other.valeur_a_gauche
+        equa = equa or (self.valeur_a_droite == other.valeur_a_gauche and self.valeur_a_gauche == other.valeur_a_droite)
+        return equa
 
 
 class Joueur:
@@ -77,6 +90,16 @@ class Joueur:
 
     def retirer_domino(self, index_domino):
         self._dominos_en_main.pop(index_domino)
+
+    def maxi_double(self):
+        maxi = None
+        for domino in self._dominos_en_main:
+            if domino.est_double():
+                if maxi is None:
+                    maxi = domino
+                elif domino.valeur_a_droite > maxi.valeur_a_droite:
+                    maxi = domino
+        return maxi
 
     def str_main(self):
         main = ""
@@ -107,8 +130,6 @@ class Joueur:
         return f"{self.name}: {len(self._dominos_en_main)}=>" + self.str_main()
 
 
-
-
 def test_domino():
     domino = Domino(5, 6)
     print(domino)
@@ -119,8 +140,17 @@ def test_joueur():
     j1 = Joueur("Player1")
     print(j1)
     j1.ajouter_domino(Domino(5, 6))
+    j1.ajouter_domino(Domino(3, 4))
+    j1.ajouter_domino(Domino(5, 5))
     j1.ajouter_domino(Domino(6, 6))
     j1.ajouter_domino(Domino(3, 2))
     print(j1)
     j1.retirer_domino(1)
+    j1_double = j1.maxi_double()
+    print("Maxi double:", j1_double)
+    print("Domino not equals",j1_double == Domino(5, 5))
+    print("Domino equals",j1_double == Domino(6, 6))
     print(j1)
+
+
+test_joueur()

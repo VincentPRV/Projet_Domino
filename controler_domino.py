@@ -1,5 +1,5 @@
 import random
-import beans_domino as beans
+from beans_domino import *
 from random import randint, sample
 
 
@@ -25,8 +25,8 @@ class Partie:
         for i in range(0, 7):
             j = 0
             for j in range (0, i):
-                jeux_complet.append(beans.Domino(j, i))
-            jeux_complet.append(beans.Domino(i, i))
+                jeux_complet.append(Domino(j, i))
+            jeux_complet.append(Domino(i, i))
         return jeux_complet
     
     def __init__(self):
@@ -36,7 +36,7 @@ class Partie:
 
     def ajouter_joueur(self, joueur):
         if len(self._joueurs) < 7:
-            self._joueurs.append(beans.Joueur(joueur))
+            self._joueurs.append(Joueur(joueur))
         else :
             raise Exception("Il ne peut pas y avoir plus de 6 joueurs")
 
@@ -103,6 +103,14 @@ class Partie:
             raise Exception("Position non gérée pour l'instant", position)
         return ajout_success
 
+    def premier_joueur(self):
+        """Le joueur ayant le double le plus élevé commence la partie de dominos et pose son domino au centre de la table (si personne n’a le double 6, c’est le double 5 qui commence, etc.… et si personne n’a de double, c'est le domino 6/5 qui commence ou sinon le 6/4 etc.). Le joueur suivant (à gauche du premier joueur) doit poser l’un de ses dominos dont l’un des côtés est identique à un côté du premier domino. 
+        Puis c’est au joueur suivant de jouer et ainsi de suite. 
+        Les joueurs peuvent poser leur domino à l’une ou l’autre des extrémités de la chaîne.
+        """
+        pass
+        
+
 
 def test_partie():
     partie1 = Partie()
@@ -113,6 +121,7 @@ def test_partie():
     partie1.distribue_dominos()
     partie1.affiche_joueurs_mains()
     partie1.affiche_pioche()
+    partie1.ajouter_domino(Domino(1,0))
     
 
 # jeux = Partie.jeux_complet()
