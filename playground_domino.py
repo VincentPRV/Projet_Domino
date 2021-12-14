@@ -27,9 +27,10 @@ def play():
             joueur = partie.premier_joueur()
             print(joueur.name)
             # La partie est initialisée
+            
             # Il faut poser le premier domino
             # il faut récupérer l'indice du premier joueur pour initier les tours
-            
+
             
 
         else:
