@@ -35,6 +35,9 @@ class Partie:
         self.partie_name = partie_name
         self._joueur_courant_position = 0
 
+    def ajouter_ordinateur(self):
+        self.ajouter_joueur(Joueur("Ordinateur", "ordinateur"))
+
     def ajouter_joueur(self, joueur):
         res = None
         if len(self._joueurs) < 6 :
@@ -77,14 +80,39 @@ class Partie:
             for domino in main:
                 self._pioche.remove(domino)
     
+    def pioche_auto(self, joueur):
+        """[summary]
+
+        Args:
+            partie ([type]): [description]
+            joueur ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        domino = self.pioche()
+        if domino is not None:
+            joueur.ajouter_domino(domino)
+            self.deposer_domino_auto(joueur, domino)
+        return domino
+
     def pioche(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         domino = None
         if len(self._pioche) > 0:
             domino = sample(self._pioche, 1)
-            self._pioche.remove(domino)
+            if domino is not None:
+                domino = domino[0] 
+                self._pioche.remove(domino)
         return domino
 
     def affiche_plateau(self):
+        print("------------------------------------")
+        print("PLATEAU => ", end="")
         for domino in self._plateau:
             print(domino, end="")
         print("")
@@ -99,16 +127,36 @@ class Partie:
     def domino_a_gauche(self):
         if len(self._plateau) == 0:
             raise Exception("Aucun domino sur le plateau")
-        return self._plateau[0]
+        return self._plateau[0].valeur_a_gauche
 
     def domino_a_droite(self):
         if len(self._plateau) == 0:
             raise Exception("Aucun domino sur le plateau")
-        return self._plateau[-1]
+        return self._plateau[-1].valeur_a_droite
 
-    def deposer_domino_a_gauche(self, domino):
+    def deposer_domino_auto(self, joueur, domino, inverse=False):
+        """Tente de deposer le domino des deux côtés et en inversant le domino
+
+        Args:
+            joueur (Joueur): Joueur en cours
+            domino (Domino): Domino à déposer
+            inverse (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            [type]: [description]
+        """
+        res = self.deposer_domino_a_gauche(joueur, domino)
+        if not res:
+            res = self.deposer_domino_a_droite(joueur, domino)
+            if not res and not inverse:
+                domino.inverse()
+                res = self.deposer_domino_auto(joueur, domino, inverse=True)
+        return res
+
+    def deposer_domino_a_gauche(self, joueur, domino):
         """ Ajoute le domino à la chaine
         Args:
+            joueur (Joueur): Joueur en cours
             domino (Domino): le domino à ajouter
 
         Raises:
@@ -117,13 +165,14 @@ class Partie:
         Returns:
             Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
         """
-        ajout_success = self._ajouter_domino(domino, "gauche")
+        ajout_success = self._ajouter_domino(joueur, domino, "gauche")
         return ajout_success
     
-    def deposer_domino_a_droite(self, domino):
+    def deposer_domino_a_droite(self, joueur, domino):
         """ Ajoute le domino à la chaine
 
         Args:
+            joueur (Joueur): Joueur en cours
             domino (Domino): le domino à ajouter
 
         Raises:
@@ -132,13 +181,14 @@ class Partie:
         Returns:
             Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
         """
-        ajout_success = self._ajouter_domino(domino, "droite")
+        ajout_success = self._ajouter_domino(joueur, domino, "droite")
         return ajout_success
 
-    def deposer_premier_domino(self, domino):
+    def deposer_premier_domino(self, joueur, domino):
         """ Ajoute le domino à la chaine
 
         Args:
+            joueur (Joueur): Joueur en cours
             domino (Domino): le domino à ajouter
 
         Raises:
@@ -147,7 +197,7 @@ class Partie:
         Returns:
             Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
         """
-        ajout_success = self._ajouter_domino(domino, "")
+        ajout_success = self._ajouter_domino(joueur, domino, "")
         return ajout_success  
 
     def joueur_courant(self):
@@ -227,6 +277,27 @@ class Partie:
                 pos += 1
         return premier_joueur, premier_domino
     
+    def tour_auto(self, joueur):
+        """Joue le tour automatiquement ou semi automatiquement
+
+        Args:
+            partie (Partie): [description]
+            joueur (Joueur): [description]
+        """
+        
+        # On affiche le plateau
+        self.affiche_plateau()
+        # on affiche les dominos du joueur courant
+        print(joueur)
+        # Recupérer les dominos compatibles
+        dominos = joueur.dominos_compatibles(self.domino_a_gauche(), self.domino_a_droite())
+        if len(dominos)==0:
+            self.pioche_auto(joueur)
+        else:
+            dom = sample(dominos, 1)[0]
+            self.deposer_domino_auto(joueur, dom)
+        
+
     @property
     def joueurs(self):
         return self._joueurs
@@ -236,29 +307,46 @@ class Partie:
          raise Exception("Impossible de modifier les joueurs en cours de partie !")        
 
     def classement(self):
+        """ Calcul le nombre de points dans les mains des joueurs et les ajoute dans un dictionnaire
+            Le gagnant est celui qui totalise le moins de points.
+        Returns:
+            Dict(int, List[Joueur]): (nb points, Liste de joueurs concernés)
+        """
         classe = {}
         if self._joueurs is not None:
             for joueur in self._joueurs:
                 score = joueur.score()
-                classe[score] = classe.get(score, []).append(joueur)
+                liste = classe.get(score, [])
+                liste.append(joueur.name)
+                classe[score] = liste
         return classe
 
     def affiche_classement(self):
+        """ Affiche le classement trié du 1er au dernier joueur.
+            Le gagnant est celui qui totalise le moins de points.
+        """
         classe = self.classement()
         if classe is not None:
-            nb_points = classe.keys()
+            nb_points = list(classe.keys())
             nb_points.sort()
             i = 1
             for nb_point in nb_points:
-                print(f"{i} avec {nb_point} pour :{classe[nb_point]}")
+                print(f"{i} - avec {nb_point} pour :{classe[nb_point]}")
+                i += 1
         else:
             print("Aucun classement à afficher")
 
+    def __repr__(self):
+        return self.str()
 
-    def _ajouter_domino(self, domino, position):
-        """[summary]
+    def __str__(self):
+        return f"{self.partie_name}:{self.classement()}"
+
+    def _ajouter_domino(self, joueur, domino, position):
+        """Ajoute un domino dans la chaine de domino de la partie
 
         Args:
+            joueur (Joueur): Joueur en cours
             domino (Domino): le domino à ajouter
             position (String): emplacement où déposer le domino : 'droite' ou 'gauche'
 
@@ -272,24 +360,29 @@ class Partie:
         if domino != None and isinstance(domino, Domino):
             # Traitement du cas du premier domino
             if len(self._plateau) == 0 :
-                self._plateau = [domino]
+                self._plateau = [domino] 
+                ajout_success = True
             else :
                 # Traitement des autres domino
-                if position == "droite":
+                if position in "droite":
                     # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
                     domino_plateau = self.domino_a_droite()
-                    if domino.valeur_a_gauche == domino_plateau.valeur_a_droite:
+                    if domino.valeur_a_gauche == domino_plateau:
                         self._plateau.append(domino)
                         ajout_success = True
-                elif position == "gauche":
+                elif position in "gauche":
                     domino_plateau = self.domino_a_gauche()
-                    if domino.valeur_a_droite == domino_plateau.valeur_a_gauche:
+                    if domino.valeur_a_droite == domino_plateau:
                         self._plateau.insert(0, domino)
                         ajout_success = True
                 else:
                     raise Exception("Position non gérée pour l'instant", position)
         else:
             raise Exception("Domino attendu et non", domino)
+        
+        if ajout_success:
+            # on retire le domino du joueur
+            joueur.retirer_domino(domino)
         return ajout_success
             
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -319,11 +412,11 @@ def test_jeux_complet():
     print("----------------------------------------------")
     jeux = Partie.jeux_complet()
     print(jeux)
-    for i in jeux :
+    for i in jeux :#
             print (i[0])
     # print(lst)
     
-test_jeux_complet()   
+#test_jeux_complet()   
    
 def test_ajouter_joueur(): 
     print("----------------------------------------------")
