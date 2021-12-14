@@ -74,7 +74,7 @@ class Domino:
         
         if type(other) != type(self):
             return False
-
+        
         # On vérifie l'égalité dans les deux sens
         equa = self.valeur_a_droite == other.valeur_a_droite and self.valeur_a_gauche == other.valeur_a_gauche
         equa = equa or (self.valeur_a_droite == other.valeur_a_gauche and self.valeur_a_gauche == other.valeur_a_droite)
@@ -93,7 +93,17 @@ class Joueur:
 
     def retirer_domino(self, index_domino):
         self._dominos_en_main.pop(index_domino)
-
+        
+    def maxi_domino(self):
+        max_score= None
+        for domino in self._dominos_en_main:
+            if max_score == None:
+                max_score = domino.score()
+            else :
+                if max_score is not None and max_score < domino.score() :
+                    max_score = domino.score()
+        return max_score
+              
     def maxi_double(self):
         maxi = None
         for domino in self._dominos_en_main:
