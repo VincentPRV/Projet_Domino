@@ -150,6 +150,23 @@ class Joueur:
     def type(self, type):
         raise Exception("Le type de joueur ne peut pas être modifié")
 
+    def dominos_compatibles(self, valeur_gauche, valeur_droite):
+        """Recherche les dominos compatibles dans la main du joueur
+        Args:
+            valeur_gauche (int): valeur à comparer
+            valeur_droite (int): valeur à comparer
+
+        Returns:
+            List(Domino): Liste de domino compatibles ou liste vide
+        """
+        dominos = []
+        for domi in self.dominos_en_main:
+            if domi.valeur_a_gauche == valeur_gauche or domi.valeur_a_gauche == valeur_droite:
+                dominos.append(domi)
+            elif domi.valeur_a_droite == valeur_gauche or domi.valeur_a_droite == valeur_droite:
+                dominos.append(domi)
+        return dominos
+
     def __repr__(self):
         return str(self)
 
