@@ -37,7 +37,7 @@ class Partie:
         self._joueur_courant_position = 0
 
     def ajouter_joueur(self, joueur):
-        if len(self._joueurs) < 7 :
+        if len(self._joueurs) < 6 :
             if isinstance(joueur, str):
                 self._joueurs.append(Joueur(joueur))
             elif isinstance(joueur, Joueur):
@@ -279,11 +279,34 @@ def test_partie():
 # test_partie()
    
 def test_ajouter_joueur(): 
+    print("----------------------------------------------")
+    print("Partie > ajouter_joueur")
+    print("----------------------------------------------")
     partie1 = Partie()
     partie1.ajouter_joueur("JoueurUn")
-    assert partie1.joueurs ==  'JoueurUn'
-    print( "test d'ajout d'un joueur 'JouerUn' : ",partie1.premier_joueur())
-   
+    assert partie1.joueurs[0].name ==  "JoueurUn"
+    print( "test d'ajout d'un joueur 'JoueurUn' sous formestr : OK")
+    print("----------------------------------------------")
+    partie1.ajouter_joueur(Joueur("JoueurDeux"))
+    assert partie1.joueurs[1].name ==  "JoueurDeux"
+    print( "test d'ajout d'un joueur sous forme objet 'JoueuDeux' : OK")
+    print(partie1.joueurs)
+    print("----------------------------------------------")
+    print( "test de la limite maximun de joueurs par partie")
+    partie1.ajouter_joueur("JoueurTrois")
+    partie1.ajouter_joueur("JoueurQuatre")
+    partie1.ajouter_joueur("JoueurCinq")
+    partie1.ajouter_joueur("JoueurSix")
+    assert len(partie1.joueurs) <= 6
+    print("ajout de 4 joueurs ! Taille de la liste de joueurs : ",len(partie1.joueurs))
+    print("ajout d'un 7ème joueurs")
+    partie1.ajouter_joueur("JoueurSept")
+    # print(len(partie1.joueurs))
+    # assert len(partie1.joueurs) < 6
+    # print( "test de la limite maximun de 6 joueurs par partie : OK")
+test_ajouter_joueur()
+
+ 
 def test_ajout_domino ():
     pass
      
@@ -324,4 +347,4 @@ def test_premier_joueur():
 
 
 
-test_premier_joueur()
+# test_premier_joueur()
