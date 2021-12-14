@@ -104,11 +104,45 @@ class Partie:
         return ajout_success
 
     def premier_joueur(self):
-        """Le joueur ayant le double le plus élevé commence la partie de dominos et pose son domino au centre de la table (si personne n’a le double 6, c’est le double 5 qui commence, etc.… et si personne n’a de double, c'est le domino 6/5 qui commence ou sinon le 6/4 etc.). Le joueur suivant (à gauche du premier joueur) doit poser l’un de ses dominos dont l’un des côtés est identique à un côté du premier domino. 
+        """Le joueur ayant le double le plus élevé commence la partie de dominos et pose son domino au centre de la 
+        table (si personne n’a le double 6, c’est le double 5 qui commence, etc.… et si personne n’a de double, c'est le domino 6/5 qui commence ou 
+        sinon le 6/4 etc.). Le joueur suivant (à gauche du premier joueur) doit poser l’un de ses dominos dont l’un des côtés est identique à un côté du premier domino. 
         Puis c’est au joueur suivant de jouer et ainsi de suite. 
         Les joueurs peuvent poser leur domino à l’une ou l’autre des extrémités de la chaîne.
         """
-        pass
+        double_domino = None 
+        valeur_max = None
+        premier_joueur = None
+        
+        for joueur in self._joueurs:
+            # On vérifie la présence de double pour chaque joueurs, en gardant le plus grand
+            if double_domino == None:
+                # On défini la valeur de double_domino par la première valeur trouvé
+                double_domino = joueur.maxi_double()
+                if double_domino is not None:
+                    premier_joueur = joueur
+            else :
+                # On vérifie maintenant si les nouveaux doubles trouvé sont plus grands que la valeur enregistré
+                double_joueur = joueur.maxi_double()
+                if double_joueur is not None and double_joueur.score() > double_domino.score() :
+                    double_domino = joueur.maxi_double()
+                    premier_joueur = joueur
+        # On applique maintenant la règle dans le cas ou aucun joueurs ne possède de domino double
+        # On regarde donc la valeur maximun des dominos présent dans la main de chaque joueurs
+        if premier_joueur is None :
+            for joueur in self._joueurs:
+                if valeur_max == None:
+                    valeur_max = joueur.maxi_domino()
+                    premier_joueur = joueur
+                else :
+                    if  joueur.maxi_domino() is not None and joueur.maxi_domino() > valeur_max :
+                        valeur_max = joueur.maxi_domino()
+                        premier_joueur = joueur
+        return premier_joueur
+            
+            
+        
+    
         
 
 
@@ -121,11 +155,11 @@ def test_partie():
     partie1.distribue_dominos()
     partie1.affiche_joueurs_mains()
     partie1.affiche_pioche()
-    partie1.ajouter_domino(Domino(1,0))
-    
+    # partie1.ajouter_domino(Domino(1,0))
+    print( "premier joueur = ", partie1.premier_joueur())
 
-# jeux = Partie.jeux_complet()
-# print(len(jeux), jeux)
+jeux = Partie.jeux_complet()
+print(len(jeux), jeux)
 
 test_partie()
    
