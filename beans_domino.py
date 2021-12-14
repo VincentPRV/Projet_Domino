@@ -1,12 +1,12 @@
 """
 Ce fichier contient toutes les classes utilisées pour ce projet
 """
-import random
+from random import randint
 
 class Domino:
     """Cette classe représente un Domino
     """
-    def __init__(self, valeur_a_gauche=0, valeur_a_droite=0, generate=False):
+    def __init__(self, valeur_a_gauche=-1, valeur_a_droite=-1):
         """[summary]
             1. On veut pouvoir construire un domino avec des valeurs déterminées
             2. On veut pouvoir construire un domino avec des valeurs tirées au hasard
@@ -14,14 +14,15 @@ class Domino:
         Args:
             valeur_a_gauche (int, optional): one face value. Defaults to 0.
             b (int, optional): one face value. Defaults to 0.
-            random (bool, optional): To generate the domino values. Defaults to False.
 
         Raises:
             Exception: La valeur doit être entre 0 et 6 (inclus)
         """
-        if generate:
-            valeur_a_gauche = random.randint(0, 7)
-            valeur_a_droite = random.randint(0, 7)
+        if valeur_a_gauche == -1:
+            valeur_a_gauche = randint(0, 6)
+        if valeur_a_droite == -1:
+            valeur_a_droite = randint(0, 6)
+
         if valeur_a_gauche > 6 or valeur_a_gauche < 0 or valeur_a_droite > 6 or valeur_a_droite < 0:
             raise Exception("La valeur doit être entre 0 et 6 (inclus)")
         self._valeur_a_gauche = valeur_a_gauche
@@ -146,8 +147,6 @@ class Joueur:
 #                                              TESTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # DOMINO
-
-
 def test_domino_constructeur():
     print("Domino > constucteur et repr")
     mon_domino = Domino()
@@ -217,23 +216,93 @@ def test_domino():
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # JOUEURS
-def test_joueur():
+def test_joueur_constructeur():
+    print("Joueur > constucteur")
+    # def __init__(self, name, type="humain"):
     j1 = Joueur("Player1")
-    print(j1)
-    j1.ajouter_domino(Domino(5, 6))
-    j1.ajouter_domino(Domino(3, 4))
-    j1.ajouter_domino(Domino(5, 5))
-    j1.ajouter_domino(Domino(6, 6))
-    j1.ajouter_domino(Domino(3, 2))
-    print(j1)
-    j1.retirer_domino(1)
-    j1_double = j1.maxi_double()
-    print("Maxi double:", j1_double)
-    print("Domino not equals",j1_double == Domino(5, 5))
-    print("Domino equals",j1_double == Domino(6, 6))
-    print(j1)
-    print('Maxi domino :', j1.maxi_domino())
+    assert j1.type == "humain"
+    assert j1.name == "Player1"
+    j2 = Joueur("Player2", "ordinateur")
+    assert j2.name == "Player2"
+    assert j2.type == "ordinateur"
 
+def test_joueur_exception():
+    print("Joueur > Exceptions")
+    j1 = Joueur("Player1")
+    try:
+        j1.type = "ordinateur"
+        raise AssertionError("La modification du type devrait déclencher une erreur")
+    except:
+        assert True
+
+def test_joueur_ajouter_domino(no_joueur=1):
+    print("Joueur > Ajouter Domino")
+    j1 = Joueur("Player"+str(no_joueur))
+    for i in range (5):
+        j1.ajouter_domino(Domino())
+    assert len(j1.dominos_en_main) == (i+1)
+    print(j1)
+    return j1
+
+
+def test_joueur_retirer_domino(joueur=None):
+    print("Joueur > Ajouter Domino")
+    if joueur is None:
+        joueur = test_joueur_ajouter_domino()
+    
+    pos = 1
+    for i in range(len(joueur.dominos_en_main)):
+        domino = joueur.dominos_en_main[pos]
+        joueur.retirer_domino(pos)
+        if len(joueur.dominos_en_main)> 0:
+            assert joueur.dominos_en_main[pos] != domino
+        else:
+            # Cas où il n'y a plus de domino
+            assert True
+    # Tester le retrait d'un domino avec index hors liste
+    joueur = test_joueur_ajouter_domino()
+    pos = len(joueur.dominos_en_main) + 2
+    try:
+        joueur.retirer_domino(pos)
+        raise AssertionError("Le retrait d'un domino d'un index > à la taille de la liste devrait lever une erreur")
+    except:
+        assert True
+
+def test_joueur_maxi_double():
+    print("Joueur > Maxi Double")
+    j1 = Joueur("Player")
+    for i in range (6):
+        j1.ajouter_domino(Domino(i, i))  
+        maxi = j1.maxi_double()
+        assert maxi.score == i*2
+
+    j1 = Joueur("Player")
+    maxi = j1.maxi_double()
+    assert maxi is None
+
+    j1.ajouter_domino(Domino(1,2))
+    j1.ajouter_domino(Domino(2,3))
+    j1.ajouter_domino(Domino(3,4))
+    maxi = j1.maxi_double()
+    assert maxi is None
+
+    j1.ajouter_domino(Domino(4,4))
+    maxi = j1.maxi_double()
+    assert maxi.score == 8
+
+
+def test_joueur():
+    test_joueur_constructeur()
+    test_joueur_exception()
+    j1 = test_joueur_ajouter_domino()
+    test_joueur_retirer_domino()
+    test_joueur_maxi_double()
+
+    
+    # print("Maxi double:", j1_double)
+    # print("Domino not equals",j1_double == Domino(5, 5))
+    # print("Domino equals",j1_double == Domino(6, 6))
+    # print(j1)
 
 
 # test_joueur()
