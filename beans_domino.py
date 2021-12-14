@@ -41,9 +41,11 @@ class Domino:
 
     def est_compatible(self, valeur):
         """Teste si le domino est compatible avec une valeur passée en paramètre
-        c'est-à-dire s'il peut être placée à côté de cette valeur
+        c'est-à-dire s'il peut être placé à côté de cette valeur
         """
-        return self._valeur_a_droite == valeur or self._valeur_a_gauche == valeur
+        est_comp = self._valeur_a_droite == valeur or self._valeur_a_gauche == valeur
+        est_comp = est_comp or self._valeur_a_droite == 0 or self._valeur_a_gauche == 0 or valeur == 0
+        return est_comp
 
     def est_double(self):
         return self._valeur_a_droite == self._valeur_a_gauche
@@ -65,7 +67,7 @@ class Domino:
         raise Exception("La valeur ne peut pas être modifiée")
 
     def __str__(self):
-        return f"[{self.valeur_a_gauche}:{self.valeur_a_droite}]"
+        return f"[{' ' if self.valeur_a_gauche==0 else self.valeur_a_gauche}:{' ' if self.valeur_a_droite==0 else self.valeur_a_droite}]"
     
     def __eq__(self, other):
         
@@ -130,12 +132,63 @@ class Joueur:
         return f"{self.name}: {len(self._dominos_en_main)}=>" + self.str_main()
 
 
-def test_domino():
-    domino = Domino(5, 6)
-    print(domino)
-    domino.inverse()
-    print(domino)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                                              TESTS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# DOMINO
 
+
+def test_domino_constructeur():
+    # Test constructeur
+    mon_domino = Domino()
+    assert mon_domino.valeur_a_gauche in range(0, 7)
+    assert mon_domino.valeur_a_droite in range(0, 7)
+    mon_domino = Domino(0, 5)
+    assert mon_domino.valeur_a_gauche == 0
+    assert mon_domino.valeur_a_droite == 5
+    mon_autre_domino = Domino(1, 4)
+    assert mon_autre_domino.__repr__() == '[1:4]'
+    assert mon_domino.__repr__() == '[ :5]'
+    print(mon_domino, mon_autre_domino)
+
+def test_domino_constructeur_erreur():
+    # Doit lever une exception
+    try:
+        mon_faux_domino = Domino(7, 7)
+        raise AssertionError(f"Une exception aurait dû être levée:{mon_faux_domino}") 
+    except:
+        assert True
+    try:
+        mon_faux_domino = Domino(-1, 0)
+        raise AssertionError(f"Une exception aurait dû être levée:{mon_faux_domino}") 
+    except:
+        assert True
+    try:
+        mon_faux_domino = Domino(1, 7)
+        raise AssertionError(f"Une exception aurait dû être levée:{mon_faux_domino}") 
+    except:
+        assert True
+
+def test_domino_inverse():
+    # Test inverse()
+    mon_domino = Domino(0, 5)
+    print(mon_domino)
+    mon_domino.inverse()
+    assert mon_domino.valeur_a_gauche == 5
+    assert mon_domino.valeur_a_droite == 0
+    print(mon_domino)
+
+
+def test_domino():
+    test_domino_constructeur()
+    test_domino_constructeur_erreur()
+    test_domino_inverse()
+    
+
+# test_domino()
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# JOUEURS
 def test_joueur():
     j1 = Joueur("Player1")
     print(j1)
@@ -153,4 +206,5 @@ def test_joueur():
     print(j1)
 
 
-test_joueur()
+
+# test_joueur()
