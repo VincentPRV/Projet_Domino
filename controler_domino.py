@@ -1,4 +1,3 @@
-import random
 from beans_domino import *
 from random import randint, sample
 
@@ -93,6 +92,16 @@ class Partie:
     def affiche_pioche(self):
         print(f"Pioche:{len(self._pioche)}=>{self._pioche}")
     
+    def domino_a_gauche(self):
+        if len(self._plateau) == 0:
+            raise Exception("Aucun domino sur le plateau")
+        return self._plateau[0]
+
+    def domino_a_droite(self):
+        if len(self._plateau) == 0:
+            raise Exception("Aucun domino sur le plateau")
+        return self._plateau[-1]
+
     def deposer_domino_a_gauche(self, domino):
         """ Ajoute le domino à la chaine
         Args:
@@ -222,6 +231,26 @@ class Partie:
     def joueurs(self, joueurs):
          raise Exception("Impossible de modifier les joueurs en cours de partie !")        
 
+    def classement(self):
+        classe = {}
+        if self._joueurs is not None:
+            for joueur in self._joueurs:
+                score = joueur.score()
+                classe[score] = classe.get(score, []).append(joueur)
+        return classe
+
+    def affiche_classement(self):
+        classe = self.classement()
+        if classe is not None:
+            nb_points = classe.keys()
+            nb_points.sort()
+            i = 1
+            for nb_point in nb_points:
+                print(f"{i} avec {nb_point} pour :{classe[nb_point]}")
+        else:
+            print("Aucun classement à afficher")
+
+
     def _ajouter_domino(self, domino, position):
         """[summary]
 
@@ -236,7 +265,7 @@ class Partie:
             Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
         """
         ajout_success = False
-        if domino != None and domino.isinstance(Domino):
+        if domino != None and isinstance(domino, Domino):
             # Traitement du cas du premier domino
             if len(self._plateau) == 0 :
                 self._plateau = [domino]
@@ -244,12 +273,12 @@ class Partie:
                 # Traitement des autres domino
                 if position == "droite":
                     # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
-                    domino_plateau = self._plateau[-1]
+                    domino_plateau = self.domino_a_droite()
                     if domino.valeur_a_gauche == domino_plateau.valeur_a_droite:
                         self._plateau.append(domino)
                         ajout_success = True
                 elif position == "gauche":
-                    domino_plateau = self._plateau[0]
+                    domino_plateau = self.domino_a_gauche()
                     if domino.valeur_a_droite == domino_plateau.valeur_a_gauche:
                         self._plateau.insert(0, domino)
                         ajout_success = True
@@ -325,4 +354,4 @@ def test_premier_joueur():
 
 
 
-test_premier_joueur()
+# test_premier_joueur()
