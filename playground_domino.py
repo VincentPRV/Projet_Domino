@@ -5,7 +5,7 @@ from beans_domino import *
 # Affichage plateau avant jeu
 # Gérer les tours
 
-def play_game():
+def play():
 
     reponse = ""
     i = 0
@@ -25,8 +25,13 @@ def play_game():
             partie.distribue_dominos()
             print(partie.partie_name, ": le premier joueur est ", end="")
             joueur = partie.premier_joueur()
-            # La partie est initialisée
             print(joueur.name)
+            # La partie est initialisée
+            # Il faut poser le premier domino
+            # il faut récupérer l'indice du premier joueur pour initier les tours
+            
+            
+
         else:
             reponse = input("Vous n'avez saisis aucun joueur, souhaitez-vous quitter le jeux ? o/n\n")
             reponse = "exit"

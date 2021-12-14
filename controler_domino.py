@@ -33,6 +33,7 @@ class Partie:
         self._pioche = None
         self._plateau = []
         self.partie_name = partie_name
+        self._joueur_courant_position = 0
 
     def ajouter_joueur(self, joueur):
         if len(self._joueurs) < 7 :
@@ -91,34 +92,92 @@ class Partie:
     def affiche_pioche(self):
         print(f"Pioche:{len(self._pioche)}=>{self._pioche}")
     
-    def ajouter_domino(self, domino, position):
-        ajout_success = False
-        if position == "droite":
-            # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
-            domino_plateau = self._plateau[-1]
-            if domino.valeur_a_gauche == domino_plateau.valeur_a_droite:
-                self._plateau.append(domino)
-                ajout_success = True
-        elif position == "gauche":
-            domino_plateau = self._plateau[0]
-            if domino.valeur_a_droite == domino_plateau.valeur_a_gauche:
-                self._plateau.insert(0, domino)
-                ajout_success = True
-        else:
-            raise Exception("Position non gérée pour l'instant", position)
+    def deposer_domino_a_gauche(self, domino):
+        """ Ajoute le domino à la chaine
+        Args:
+            domino (Domino): le domino à ajouter
+
+        Raises:
+            Exception: S'il ne s'agit pas d'un Domino
+
+        Returns:
+            Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
+        """
+        ajout_success = self._ajouter_domino(domino, "gauche")
+        return ajout_success
+    
+    def deposer_domino_a_droite(self, domino):
+        """ Ajoute le domino à la chaine
+
+        Args:
+            domino (Domino): le domino à ajouter
+
+        Raises:
+            Exception: S'il ne s'agit pas d'un Domino
+
+        Returns:
+            Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
+        """
+        ajout_success = self._ajouter_domino(domino, "droite")
         return ajout_success
 
+    def deposer_premier_domino(self, domino):
+        """ Ajoute le domino à la chaine
+
+        Args:
+            domino (Domino): le domino à ajouter
+
+        Raises:
+            Exception: S'il ne s'agit pas d'un Domino
+
+        Returns:
+            Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
+        """
+        ajout_success = self._ajouter_domino(domino, "")
+        return ajout_success  
+
+    def joueur_courant(self):
+        """
+        Raises:
+            Exception: Si aucun joueur couarnt n'est définit (avant de déterminer le 1er joueur par exemple)
+
+        Returns:
+            [Joeur]: Le joueur courant
+        """
+        if self._joueur_courant_position > -1:
+            return self._joueurs[self._joueur_courant_position]
+        else :
+            raise Exception("Aucun joueur courant définit")
+    
+    def joueur_suivant(self):
+        """
+        Raises:
+            Exception: Si aucun joueur courant n'est définit, il ne peut pas y avoir de joueur suivant
+
+        Returns:
+            [Joueur]: Le joueur suivant
+        """
+        if self._joueur_courant_position > -1:
+            self._joueur_courant_position += 1
+            if self._joueur_courant_position >= len(self._joueurs):
+                self._joueur_courant_position = 0
+            return self._joueurs[self._joueur_courant_position]
+        else :
+            raise Exception("Aucun joueur courant définit, donc aucun suivant ne peut être définit")
+
     def premier_joueur(self):
-        """Le joueur ayant le double le plus élevé commence la partie de dominos et pose son domino au centre de la 
-        table (si personne n’a le double 6, c’est le double 5 qui commence, etc.… et si personne n’a de double, c'est le domino 6/5 qui commence ou 
-        sinon le 6/4 etc.). Le joueur suivant (à gauche du premier joueur) doit poser l’un de ses dominos dont l’un des côtés est identique à un côté du premier domino. 
-        Puis c’est au joueur suivant de jouer et ainsi de suite. 
-        Les joueurs peuvent poser leur domino à l’une ou l’autre des extrémités de la chaîne.
+        """Identifie le premier joueur de la partie en suivant les règles suivantes :
+            - Le joueur ayant le double le plus élevé commence la partie de dominos et pose son domino au centre de la 
+            table (si personne n’a pas le double 6, c’est le double 5 qui commence, etc.… et 
+            - si personne n’a de double, c'est le domino 6/5 qui commence ou sinon le 6/4 etc.). 
+                  
+        Returns:
+            [Joueur]: Le joueur qui doit commencer la partie
         """
         double_domino = None 
         valeur_max = None
         premier_joueur = None
-        
+        pos = 0
         for joueur in self._joueurs:
             # On vérifie la présence de double pour chaque joueurs, en gardant le plus grand
             if double_domino == None:
@@ -126,23 +185,31 @@ class Partie:
                 double_domino = joueur.maxi_double()
                 if double_domino is not None:
                     premier_joueur = joueur
+                    self._joueur_courant_position = pos
             else :
                 # On vérifie maintenant si les nouveaux doubles trouvé sont plus grands que la valeur enregistré
                 double_joueur = joueur.maxi_double()
                 if double_joueur is not None and double_joueur.score() > double_domino.score() :
                     double_domino = joueur.maxi_double()
                     premier_joueur = joueur
+                    self._joueur_courant_position = pos
+            pos += 1
+
         # On applique maintenant la règle dans le cas ou aucun joueurs ne possède de domino double
         # On regarde donc la valeur maximun des dominos présent dans la main de chaque joueurs
         if premier_joueur is None :
+            pos = 0
             for joueur in self._joueurs:
                 if valeur_max == None:
                     valeur_max = joueur.maxi_domino()
                     premier_joueur = joueur
+                    self._joueur_courant_position = pos
                 else :
                     if  joueur.maxi_domino() is not None and joueur.maxi_domino() > valeur_max :
                         valeur_max = joueur.maxi_domino()
                         premier_joueur = joueur
+                        self._joueur_courant_position = pos
+                pos += 1
         return premier_joueur
     
     @property
@@ -152,8 +219,47 @@ class Partie:
     @joueurs.setter
     def joueurs(self, joueurs):
          raise Exception("Impossible de modifier les joueurs en cours de partie !")        
-            
 
+    def _ajouter_domino(self, domino, position):
+        """[summary]
+
+        Args:
+            domino (Domino): le domino à ajouter
+            position (String): emplacement où déposer le domino : 'droite' ou 'gauche'
+
+        Raises:
+            Exception: Si l'emplacement indiqué n'existe pas ou s'il ne s'agit pas d'un Domino
+
+        Returns:
+            Boolean: True si le Domino a été déposé, False si le domino ne pouvait pas être déposé (incompatible)
+        """
+        ajout_success = False
+        if domino != None and domino.isinstance(Domino):
+            # Traitement du cas du premier domino
+            if len(self._plateau) == 0 :
+                self._plateau = [domino]
+            else :
+                # Traitement des autres domino
+                if position == "droite":
+                    # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
+                    domino_plateau = self._plateau[-1]
+                    if domino.valeur_a_gauche == domino_plateau.valeur_a_droite:
+                        self._plateau.append(domino)
+                        ajout_success = True
+                elif position == "gauche":
+                    domino_plateau = self._plateau[0]
+                    if domino.valeur_a_droite == domino_plateau.valeur_a_gauche:
+                        self._plateau.insert(0, domino)
+                        ajout_success = True
+                else:
+                    raise Exception("Position non gérée pour l'instant", position)
+        else:
+            raise Exception("Domino attendu et non", domino)
+        return ajout_success
+            
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                                              TESTS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def test_partie():
     partie1 = Partie()
