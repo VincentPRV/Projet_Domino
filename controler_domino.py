@@ -36,15 +36,19 @@ class Partie:
         self._joueur_courant_position = 0
 
     def ajouter_joueur(self, joueur):
-        if len(self._joueurs) < 7 :
+        res = None
+        if len(self._joueurs) < 6 :
             if isinstance(joueur, str):
-                self._joueurs.append(Joueur(joueur))
+                res=Joueur(joueur)
+                self._joueurs.append(res)
             elif isinstance(joueur, Joueur):
-                 self._joueurs.append(joueur)
+                res=joueur
+                self._joueurs.append(joueur)
             else : 
                 raise Exception ('La création de joueur doit être de type str ou obj !')
         else :
             raise Exception("Il ne peut pas y avoir plus de 6 joueurs")
+        return res
 
     def distribue_dominos(self):
         """
@@ -292,42 +296,117 @@ class Partie:
 #                                              TESTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def test_partie():
-    partie1 = Partie()
-    partie1.ajouter_joueur("Vincent")
-    partie1.ajouter_joueur("Aurélie")
-    partie1.ajouter_joueur("Toto")
-    partie1.affiche_joueurs_mains()
-    partie1.distribue_dominos()
-    partie1.affiche_joueurs_mains()
-    partie1.affiche_pioche()
-    print( "premier joueur = ", partie1.premier_joueur())
+# def test_partie():
+#     partie1 = Partie()
+#     partie1.ajouter_joueur("Vincent")
+#     partie1.ajouter_joueur("Aurélie")
+#     partie1.ajouter_joueur("Toto")
+#     partie1.affiche_joueurs_mains()
+#     partie1.distribue_dominos()
+#     partie1.affiche_joueurs_mains()
+#     partie1.affiche_pioche()
+#     print( "premier joueur = ", partie1.premier_joueur())
+#     return partie1
 
 # jeux = Partie.jeux_complet()
 # print(len(jeux), jeux)
 
 # test_partie()
+
+def test_jeux_complet():
+    print("----------------------------------------------")
+    print("Partie > jeux_complet")
+    print("----------------------------------------------")
+    jeux = Partie.jeux_complet()
+    print(jeux)
+    for i in jeux :
+            print (i[0])
+    # print(lst)
+    
+test_jeux_complet()   
    
 def test_ajouter_joueur(): 
+    print("----------------------------------------------")
+    print("Partie > ajouter_joueur")
+    print("----------------------------------------------")
     partie1 = Partie()
     partie1.ajouter_joueur("JoueurUn")
-    assert partie1.joueurs ==  'JoueurUn'
-    print( "test d'ajout d'un joueur 'JouerUn' : ",partie1.premier_joueur())
-   
-def test_ajout_domino ():
-    pass
-     
+    assert partie1.joueurs[0].name ==  "JoueurUn"
+    print( "test d'ajout d'un joueur 'JoueurUn' sous forme str : OK")
+    print("----------------------------------------------")
+    partie1.ajouter_joueur(Joueur("JoueurDeux"))
+    assert partie1.joueurs[1].name ==  "JoueurDeux"
+    print( "test d'ajout d'un joueur sous forme objet 'JoueuDeux' : OK")
+    print(partie1.joueurs)
+    print("----------------------------------------------")
+    print( "test de la limite maximun de joueurs par partie")
+    partie1.ajouter_joueur("JoueurTrois")
+    partie1.ajouter_joueur("JoueurQuatre")
+    partie1.ajouter_joueur("JoueurCinq")
+    partie1.ajouter_joueur("JoueurSix")
+    assert len(partie1.joueurs) <= 6
+    print("ajout de 4 joueurs ! Taille de la liste de joueurs : ",len(partie1.joueurs))
+    print("----------------------------------------------")
+    print("ajout d'un 7ème joueurs")
+    try:
+        partie1.ajouter_joueur("JoueurSept")
+        raise AssertionError("Impossible de rajouter un autre joueur à la partie !")
+    except:
+        print( "test de la limite maximun de 6 joueurs par partie : OK")
+        assert True
+    print("-------------- TEST REUSSI -------------------")
+# test_ajouter_joueur()
+
+def test_distribution_dominos():
+    print("----------------------------------------------")
+    print("Partie > distribue_dominos")
+    print("----------------------------------------------")
+    print("Test de la répartition lors d'une partie de deux joueurs - résultat attendu : 7")
+    partie1 = Partie()
+    j1=partie1.ajouter_joueur("JoueurUn")
+    j2=partie1.ajouter_joueur("JoueurDeux")
+    partie1.distribue_dominos()
+    print("j1 :", len(j1.dominos_en_main),",", "j2 :", len(j2.dominos_en_main))
+    assert len(j1.dominos_en_main) == 7 & len(j2.dominos_en_main) == 7
+    print("----------------------------------------------")
+    print("Test de la répartition lors d'une partie de trois joueurs - résultat attendu : 6")
+    j3=partie1.ajouter_joueur("JoueurTrois")
+    partie1.distribue_dominos()
+    print("j1 :", len(j1.dominos_en_main),",", "j2 :", len(j2.dominos_en_main),",", "j3 :", len(j3.dominos_en_main))
+    assert len(j1.dominos_en_main) == 6 & len(j2.dominos_en_main) == 6 & len(j3.dominos_en_main) == 6
+    print("----------------------------------------------")
+    print("Test de la répartition lors d'une partie de quatre joueurs - résultat attendu : 6")
+    j4=partie1.ajouter_joueur("JoueurQuatre")
+    partie1.distribue_dominos()
+    print("j1 :", len(j1.dominos_en_main), "," , "j2 :", len(j2.dominos_en_main), ",",  "j3 :", len(j3.dominos_en_main), "j4 :", len(j4.dominos_en_main))
+    assert len(j1.dominos_en_main) == 6 & len(j2.dominos_en_main) == 6 & len(j3.dominos_en_main) == 6 & len(j4.dominos_en_main) == 6
+    print("----------------------------------------------")
+    print("Test de la répartition lors d'une partie de cinq joueurs - résultat attendu : 4")
+    j5=partie1.ajouter_joueur("JoueurCinq")
+    partie1.distribue_dominos()
+    print("j1 :", len(j1.dominos_en_main), "," , "j2 :", len(j2.dominos_en_main), ",",  "j3 :", len(j3.dominos_en_main), ",",  "j4 :", len(j4.dominos_en_main), "j5 :", len(j5.dominos_en_main))
+    assert len(j1.dominos_en_main) == 4 & len(j2.dominos_en_main) == 4 & len(j3.dominos_en_main) == 4 & len(j4.dominos_en_main) == 4 & len(j5.dominos_en_main) == 4
+    print("----------------------------------------------")
+    print("Test de la répartition lors d'une partie de six joueurs - résultat attendu : 4")
+    j6=partie1.ajouter_joueur("JoueurSix")
+    partie1.distribue_dominos()
+    print("j1 :", len(j1.dominos_en_main), "," , "j2 :", len(j2.dominos_en_main), ",",  "j3 :", len(j3.dominos_en_main), ",",  "j4 :", len(j4.dominos_en_main), "j5 :", len(j5.dominos_en_main), ",","j6 :", len(j6.dominos_en_main))
+    assert len(j1.dominos_en_main) == 4 & len(j2.dominos_en_main) == 4 & len(j3.dominos_en_main) == 4 & len(j4.dominos_en_main) == 4 & len(j5.dominos_en_main) == 4 & len(j6.dominos_en_main) == 4
+    print("-------------- TEST REUSSI -------------------")
+
+# test_distribution_dominos()
 
 def test_premier_joueur():
     print("----------------------------------------------")
     print("Partie > premier_joueur")
     print("----------------------------------------------")
     partie1 = Partie()
-    assert partie1.premier_joueur() ==  None
+    res= partie1.premier_joueur()
+    assert res ==  (None, None)
     print( "test sans joueur : ",partie1.premier_joueur())
     print("----------------------------------------------")
     partie1.ajouter_joueur("JoueurUn")
-    assert partie1.premier_joueur() ==  partie1.joueurs[0]
+    assert partie1.premier_joueur()[0] ==  partie1.joueurs[0]
     print( "test avec un joueur : ",partie1.premier_joueur())
     print("----------------------------------------------")
     partie1.ajouter_joueur('JoueurDeux')
@@ -340,18 +419,16 @@ def test_premier_joueur():
     print("mains des joueurs :")
     partie1.affiche_joueurs_mains()
     print("----------------------------------------------")
-    assert partie1.premier_joueur() == j2
+    assert partie1.premier_joueur()[0] == j2
     print( "test avec deux joueurs (sans double): ",partie1.premier_joueur())
     print("----------------------------------------------")
     print("Ajout de double dans les mains de chaque joueurs")
     j1.ajouter_domino(Domino(6, 6))
     j2.ajouter_domino(Domino(3 ,3))
     partie1.affiche_joueurs_mains()
-    assert partie1.premier_joueur() == j1
+    assert partie1.premier_joueur()[0] == j1
     print("----------------------------------------------")
     print( "test avec deux joueurs (avec double): ",partie1.premier_joueur())
     print("-------------- TEST REUSSI -------------------")
-
-
 
 # test_premier_joueur()
