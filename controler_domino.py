@@ -35,8 +35,13 @@ class Partie:
         self.partie_name = partie_name
 
     def ajouter_joueur(self, joueur):
-        if len(self._joueurs) < 7:
-            self._joueurs.append(Joueur(joueur))
+        if len(self._joueurs) < 7 :
+            if isinstance(joueur, str):
+                self._joueurs.append(Joueur(joueur))
+            elif isinstance(joueur, Joueur):
+                 self._joueurs.append(joueur)
+            else : 
+                raise Exception ('La création de joueur doit être de type str ou obj !')
         else :
             raise Exception("Il ne peut pas y avoir plus de 6 joueurs")
 
@@ -139,11 +144,15 @@ class Partie:
                         valeur_max = joueur.maxi_domino()
                         premier_joueur = joueur
         return premier_joueur
-            
-            
-        
     
-        
+    @property
+    def joueurs(self):
+        return self._joueurs
+
+    @joueurs.setter
+    def joueurs(self, joueurs):
+         raise Exception("Impossible de modifier les joueurs en cours de partie !")        
+            
 
 
 def test_partie():
@@ -165,20 +174,24 @@ def test_partie():
 
 def test_premier_joueur():
     print("Test sur la définition du premier joueur")
-    j1=Joueur('JoueurUn')
-    j1.ajouter_domino(Domino(5, 6))
-    j1.ajouter_domino(Domino(3, 4))
-    j1.ajouter_domino(Domino(3, 2))
-    j2=Joueur('JoueurDeux')
-    j2.ajouter_domino(Domino(4 ,2))
-    j2.ajouter_domino(Domino(6 ,2))
-    j2.ajouter_domino(Domino(1 ,5))
     partie1 = Partie()
-    partie1.ajouter_joueur(j1)
-    partie1.ajouter_joueur(j2)
+    # print( "le premier joueur est : ",partie1.premier_joueur())
+    partie1.ajouter_joueur("JoueurUn")
+    print( "le premier joueur est : ",partie1.premier_joueur())
+    partie1.ajouter_joueur('JoueurDeux')
+    j1 = partie1.joueurs[0]
+    j2 = partie1.joueurs[1]
+    j1.ajouter_domino(Domino(2, 6))
+    j1.ajouter_domino(Domino(3, 2))
+    j2.ajouter_domino(Domino(6 ,4))
+    j2.ajouter_domino(Domino(1 ,5))
     partie1.affiche_joueurs_mains()
     print( "le premier joueur est : ",partie1.premier_joueur())
-    # assert Partie
+    assert partie1.premier_joueur() == j2
+    j1.ajouter_domino(Domino(6, 6))
+    j2.ajouter_domino(Domino(3 ,3))
+    print( "le premier joueur est : ",partie1.premier_joueur())
+    assert partie1.premier_joueur() == j1
     # assert mon_domino.valeur_a_gauche in range(0, 7)
     # assert mon_domino.valeur_a_droite in range(0, 7)
     # mon_domino = Domino(0, 5)
