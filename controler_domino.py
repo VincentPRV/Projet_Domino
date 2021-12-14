@@ -1,3 +1,4 @@
+import random
 from beans_domino import *
 from random import randint, sample
 
@@ -170,13 +171,28 @@ def test_partie():
 
 # test_partie()
    
+def test_ajouter_joueur(): 
+    partie1 = Partie()
+    partie1.ajouter_joueur("JoueurUn")
+    assert partie1.joueurs ==  'JoueurUn'
+    print( "test d'ajout d'un joueur 'JouerUn' : ",partie1.premier_joueur())
+   
+def test_ajout_domino ():
+    pass
+     
 
 def test_premier_joueur():
-    print("Test sur la définition du premier joueur")
+    print("----------------------------------------------")
+    print("Partie > premier_joueur")
+    print("----------------------------------------------")
     partie1 = Partie()
-    # print( "le premier joueur est : ",partie1.premier_joueur())
+    assert partie1.premier_joueur() ==  None
+    print( "test sans joueur : ",partie1.premier_joueur())
+    print("----------------------------------------------")
     partie1.ajouter_joueur("JoueurUn")
-    print( "le premier joueur est : ",partie1.premier_joueur())
+    assert partie1.premier_joueur() ==  partie1.joueurs[0]
+    print( "test avec un joueur : ",partie1.premier_joueur())
+    print("----------------------------------------------")
     partie1.ajouter_joueur('JoueurDeux')
     j1 = partie1.joueurs[0]
     j2 = partie1.joueurs[1]
@@ -184,22 +200,21 @@ def test_premier_joueur():
     j1.ajouter_domino(Domino(3, 2))
     j2.ajouter_domino(Domino(6 ,4))
     j2.ajouter_domino(Domino(1 ,5))
+    print("mains des joueurs :")
     partie1.affiche_joueurs_mains()
-    print( "le premier joueur est : ",partie1.premier_joueur())
+    print("----------------------------------------------")
     assert partie1.premier_joueur() == j2
+    print( "test avec deux joueurs (sans double): ",partie1.premier_joueur())
+    print("----------------------------------------------")
+    print("Ajout de double dans les mains de chaque joueurs")
     j1.ajouter_domino(Domino(6, 6))
     j2.ajouter_domino(Domino(3 ,3))
-    print( "le premier joueur est : ",partie1.premier_joueur())
+    partie1.affiche_joueurs_mains()
     assert partie1.premier_joueur() == j1
-    # assert mon_domino.valeur_a_gauche in range(0, 7)
-    # assert mon_domino.valeur_a_droite in range(0, 7)
-    # mon_domino = Domino(0, 5)
-    # assert mon_domino.valeur_a_gauche == 0
-    # assert mon_domino.valeur_a_droite == 5
-    # mon_autre_domino = Domino(1, 4)
-    # assert mon_autre_domino.__repr__() == '[1:4]'
-    # assert mon_domino.__repr__() == '[ :5]'
-    # print(mon_domino, mon_autre_domino)
+    print("----------------------------------------------")
+    print( "test avec deux joueurs (avec double): ",partie1.premier_joueur())
+    print("-------------- TEST REUSSI -------------------")
+
 
 
 test_premier_joueur()
