@@ -6,22 +6,25 @@ from beans_domino import *
 # Gérer les toursV
 
 def tour_joueur(partie, joueur):
-    # Boucle des tours pour 1 joueur (erreur de saisie et pioche)
-    pioche = False
+     # On vérifie si le joueur peut piocher ou non
+    pioche = not partie.peut_piocher(joueur)
     continuer_a_jouer = True
     continuer_tour = True
+    nb_erreurs = 3
     
+    # Boucle des tours pour 1 joueur (erreur de saisie et pioche)
     while continuer_tour:
         error = False
         # On affiche le plateau
         partie.affiche_plateau()
         # on affiche les dominos du joueur courant
         joueur.affiche_main_et_positions()
-        jeu = input(f"{joueur.name} quel domino voulez-vous déposer ? position OU auto OU aucun OU exit:\n")
-        # Le joueur ne peut pas déposer un domino
-        # on passe au joueur suivant, donc on sort de la boucle
+        pioche_str = "OU pioche "
+        if pioche:
+            pioche_str = ""
+        jeu = input(f"{joueur.name} quel domino voulez-vous déposer ? position OU auto {pioche_str}OU pass OU exit:")
         if jeu is None or len(jeu) == 0:
-            print("Merci de corriger votre saisie")
+            error = True
         else:
             jeu = jeu.lower()
             if jeu == "exit":
@@ -30,55 +33,44 @@ def tour_joueur(partie, joueur):
                 break
             elif "auto" in jeu:
                 return partie.tour_auto(joueur)
-            elif "aucun" in jeu and pioche:
+            elif "pioche" in jeu and pioche:
+                print("Vous avez en main un domino compatible ou vous avez déjà pioché.")
+                error = True
+            elif "pass" in jeu:
                 continuer_tour = False
                 break
-            elif "aucun" in jeu and not pioche:
-                # on pioche automatiquement
-                domino = partie.pioche()
-                if domino is not None:
-                    joueur.ajouter_domino(domino)
-                pioche = True
+            elif "pioche" in jeu and not pioche:
+                try:
+                    # on pioche automatiquement
+                    domino = partie.pioche(joueur)
+                    pioche = True
+                except Pioche_Interdite_Domino_Compatibles as err:
+                    print(f"{err.message}")
+                    error = True
             else:
-                
                 try:
                     pos = int(jeu)
                     if pos < len(joueur.dominos_en_main):
                         domino = joueur.dominos_en_main[pos]
                         # il faut vérifier que le domino est compatible
-                        cote = input(f"{joueur.name} de quel côté voulez-vous deposer votre domino ? (g ou d ou ig ou id)\n")
-                        if cote is not None:
-                            cote = cote.lower()
-                            if "i" in cote :
-                                domino.inverse()
-                            if "g" in cote:
-                                if partie.deposer_domino_a_gauche(joueur, domino):
-                                    # On peut passer au joueur suivant
-                                    continuer_tour = False
-                                    # Si le joueur n'a plus de domino, il a gagné
-                                    return len(joueur.dominos_en_main) > 0
-                                else:
-                                    print(f"Impossible de déposer le domino tel que : {domino} <> {partie.domino_a_gauche()}")
-                                    error = True
-                            elif "d" in cote:
-                                if partie.deposer_domino_a_droite(joueur, domino):
-                                    # On peut passer au joueur suivant
-                                    continuer_tour = False
-                                    # Si le joueur n'a plus de domino, il a gagné
-                                    return len(joueur.dominos_en_main) > 0
-                                else:
-                                    print(f"Impossible de déposer le domino tel que : {partie.domino_a_droite()} <> {domino}")
-                                    error = True
-                            else:
-                                continuer_tour = False
-                                return len(joueur.dominos_en_main) > 0
-                        else:
+                        cote = input(f"{joueur.name} de quel côté voulez-vous déposer votre domino (g ou d ou ig ou id) :")
+                        try:
+                            partie.jouer_domino(joueur, domino, cote)
+                            # Si le joueur n'a plus de domino, il a gagné
+                            return len(joueur.dominos_en_main) > 0
+                        except Jouer_Domino_Exception as erreur :
+                            print(erreur.message)
                             error = True
                     else:
                         error = True
                 except:
                     error = True
-        if error : print(f"Merci de vérifier votre saisie (position entre 0 et {len(joueur.dominos_en_main)})")
+        if error : 
+            nb_erreurs -= 1
+            print(f"Merci de saisir une position entre 0 et {len(joueur.dominos_en_main)}, il vous reste {nb_erreurs} essais")
+            if nb_erreurs == 0:
+                print(f"Vous avez épuisé vos 3 essais, passez votre tour.")
+                return len(joueur.dominos_en_main) > 0
     return continuer_a_jouer
 
 
@@ -94,7 +86,11 @@ def play():
         while joueur_name not in "stop" and joueur_name not in "exit":
             joueur_name = input("Saisissez le nom du joueur (ou exit ou stop):")
             if joueur_name not in "stop" and joueur_name not in "exit":
-                partie.ajouter_joueur(joueur_name)
+                try:
+                    partie.ajouter_joueur(joueur_name)
+                except Nombre_Joueurs_Exception as err:
+                    print(f"{err.message}")
+                    joueur_name = "stop"
             else:
                 break
         
@@ -127,11 +123,11 @@ def play():
                     else:
                         continuer_a_jouer = tour_joueur(partie, joueur)
                 
-                print("---------------------- GAME OVER ----------------------")
+                print(f"---------------------- {partie.partie_name} IS OVER ----------------------")
                 partie.affiche_classement()
-                print("-------------------------------------------------------")
-                reponse = input("Souhaitez-vous jouer une nouvelle partie ?(o/n):\n")
-                if "n" in reponse:
+                print("--------------------------------------------------------------------------")
+                reponse = input("Souhaitez-vous jouer une nouvelle partie ?(o/n):")
+                if "n" in reponse.lower():
                     reponse = "exit"
             else:
                 print("Erreur lors de l'ajout du premier Domino, reinitialisation de la partie")
@@ -149,5 +145,4 @@ play()
 # Si la pioche est épuisée, le joueur passe son tour.
 
 # TODO :
-# - Corriger le bug de l'ordinateur qui gagne
 # - Traiter le cas du jeux bloqué => aucun joueur ne peut poser de domino et pioche vide
