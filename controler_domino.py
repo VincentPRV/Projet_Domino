@@ -1,5 +1,5 @@
 from beans_domino import *
-from random import randint, sample
+from random import sample
 
 
 class Partie:
