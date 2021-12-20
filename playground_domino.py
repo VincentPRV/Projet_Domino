@@ -79,7 +79,7 @@ def tour_joueur(partie, joueur):
                         error = True
                 except:
                     error = True
-        if error : print(f"Merci de vérifier votre saisie (position entre 0 et {len(joueur.dominos_en_main)}")
+        if error : print(f"Merci de vérifier votre saisie (position entre 0 et {len(joueur.dominos_en_main)})")
     return continuer_a_jouer
 
 
