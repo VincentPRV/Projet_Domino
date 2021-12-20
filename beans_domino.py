@@ -29,10 +29,11 @@ class Domino:
         self._valeur_a_droite = valeur_a_droite
 
     def score(self):
-        """ The domino's value (sum of 2 values)"""
+        """ Valeur du domino (somme des points des 2 faces)"""
         return self.valeur_a_gauche + self._valeur_a_droite
     
     def inverse(self):
+        """ Inverse le sens du Domino"""
         temp = self._valeur_a_gauche
         self._valeur_a_gauche = self._valeur_a_droite
         self._valeur_a_droite = temp
@@ -41,14 +42,21 @@ class Domino:
         return str(self)
 
     def est_compatible(self, valeur):
-        """Teste si le domino est compatible avec une valeur passée en paramètre
-        c'est-à-dire s'il peut être placé à côté de cette valeur
+        """
+        Teste si le domino est compatible avec une valeur passée en paramètre
+        c'est-à-dire s'il peut être placé à côté de cette valeur.
+        La valeur 0 étant compatible avec n'importe quelle valeur
         """
         est_comp = self._valeur_a_droite == valeur or self._valeur_a_gauche == valeur
         est_comp = est_comp or self._valeur_a_droite == 0 or self._valeur_a_gauche == 0 or valeur == 0
         return est_comp
 
     def est_double(self):
+        """vérifie si le domino a 2 faces égales
+
+        Returns:
+            Boolean: True si les 2 faces du domino sont égales, False sinon
+        """
         return self._valeur_a_droite == self._valeur_a_gauche
     
     @property
@@ -89,9 +97,19 @@ class Joueur:
         self._type = type
         
     def ajouter_domino(self, new_domino):
+        """Ajoute un domino dans la main du Joueur
+
+        Args:
+            new_domino (Domino): Domino à ajouter
+        """
         self._dominos_en_main.append(new_domino)
 
     def retirer_domino(self, domino_a_retirer):
+        """Retire un domino de la main du joueur
+
+        Args:
+            domino_a_retirer (int or Domino): Domino à retirer (Position du domino dans la main ou le Domino à retirer)
+        """
         if domino_a_retirer is not None:
             if isinstance(domino_a_retirer, int):
                 self._dominos_en_main.pop(domino_a_retirer)
@@ -99,6 +117,11 @@ class Joueur:
                 self._dominos_en_main.remove(domino_a_retirer)
         
     def maxi_domino(self):
+        """Recherche le domino en main avec la valeur la plus grande
+
+        Returns:
+            Domino: le domino qui a la valeur la plus grande
+        """
         max_score= None
         max_domino = None
         for domino in self.dominos_en_main:
@@ -112,6 +135,11 @@ class Joueur:
         return max_domino
               
     def maxi_double(self):
+        """Recherche le domino double en main avec la plus grande valeur
+
+        Returns:
+            Domino: Domino double le plus grand ou None si aucun domino double
+        """
         maxi = None
         for domino in self._dominos_en_main:
             if domino.est_double():
@@ -122,6 +150,11 @@ class Joueur:
         return maxi
 
     def score(self):
+        """Calcule les points dans les mains du joueur (somme des points de domino en main)
+
+        Returns:
+            int: Score du joueur
+        """
         score = 0
         if self._dominos_en_main is not None:
             for domino in self._dominos_en_main:
@@ -129,13 +162,21 @@ class Joueur:
         return score
 
     def str_main(self):
+        """Construit une chaine représentant la main du joueur
+
+        Returns:
+            str: Chaine représentant la main du joueur
+        """
         main = ""
         for domino in self._dominos_en_main:
             main += f"{domino},"
-        return main[:-1]
+        if len(main)>2:
+            main = main[:-1]
+        return main
 
     @property
     def dominos_en_main(self):
+        # On retourne une copie de la main pour éviter les modifications de la liste
         return self._dominos_en_main.copy()
 
     @dominos_en_main.setter
@@ -161,9 +202,7 @@ class Joueur:
         """
         dominos = []
         for domi in self.dominos_en_main:
-            if domi.valeur_a_gauche == valeur_gauche or domi.valeur_a_gauche == valeur_droite:
-                dominos.append(domi)
-            elif domi.valeur_a_droite == valeur_gauche or domi.valeur_a_droite == valeur_droite:
+            if domi.est_compatible(valeur_gauche) or domi.est_compatible(valeur_droite):
                 dominos.append(domi)
         return dominos
 
@@ -327,6 +366,46 @@ def test_joueur_maxi_double():
     maxi = j1.maxi_double()
     assert maxi.score() == 8
 
+def test_joueur_maxi_domino():
+    print("Joueur > Maxi Domino")
+    j1 = Joueur("Player1")
+    maxi = j1.maxi_domino()
+    assert maxi is None
+    j1.ajouter_domino(Domino(1,2))
+    j1.ajouter_domino(Domino(2,3))
+    j1.ajouter_domino(Domino(3,4))
+    ma = Domino(5,6)
+    j1.ajouter_domino(ma)
+    maxi = j1.maxi_domino()
+    assert maxi == ma
+
+
+
+def test_joueur_dominos_compatibles():
+    print("Joueur > Dominos compatibles")
+    j1 = Joueur("Player1")
+    try:
+        compatibles = j1.dominos_compatibles()
+        raise AssertionError("Exception manquante pour les paramètres manquants")
+    except:
+        assert True
+    compatibles = j1.dominos_compatibles(1,0)
+    assert len(compatibles) == 0
+    j1.ajouter_domino(Domino(1,2))
+    j1.ajouter_domino(Domino(2,3))
+    j1.ajouter_domino(Domino(3,4))
+    
+    compatibles = j1.dominos_compatibles(1,0)
+    assert len(compatibles) == 3
+
+    compatibles = j1.dominos_compatibles(1,2)
+    assert len(compatibles) == 2
+    compatibles = j1.dominos_compatibles(6,4)
+    assert len(compatibles) == 1
+
+    compatibles = j1.dominos_compatibles(5,6)
+    assert len(compatibles) == 0
+
 
 def test_joueur():
     print("Joueur > START")
@@ -335,6 +414,8 @@ def test_joueur():
     j1 = test_joueur_ajouter_domino()
     test_joueur_retirer_domino()
     test_joueur_maxi_double()
+    test_joueur_maxi_domino()
+    test_joueur_dominos_compatibles()
     print("Joueur > END")
 
 # test_joueur()
