@@ -284,17 +284,17 @@ class Partie:
 
 # test_partie()
 
-def test_jeux_complet():
-    print("----------------------------------------------")
-    print("Partie > jeux_complet")
-    print("----------------------------------------------")
-    jeux = Partie.jeux_complet()
-    print(jeux)
-    for i in jeux :
-            print (i[0])
-    # print(lst)
+# def test_jeux_complet():
+#     print("----------------------------------------------")
+#     print("Partie > jeux_complet")
+#     print("----------------------------------------------")
+#     jeux = Partie.jeux_complet()
+#     print(jeux)
+#     for domino in jeux :
+        # domino == Domino(0,0)
+        # print(lst)
     
-test_jeux_complet()   
+# test_jeux_complet()   
    
 def test_ajouter_joueur(): 
     print("----------------------------------------------")
@@ -328,7 +328,7 @@ def test_ajouter_joueur():
     print("-------------- TEST REUSSI -------------------")
 # test_ajouter_joueur()
 
-def test_distribution_dominos():
+def test_on_dominos():
     print("----------------------------------------------")
     print("Partie > distribue_dominos")
     print("----------------------------------------------")
@@ -365,7 +365,7 @@ def test_distribution_dominos():
     assert len(j1.dominos_en_main) == 4 & len(j2.dominos_en_main) == 4 & len(j3.dominos_en_main) == 4 & len(j4.dominos_en_main) == 4 & len(j5.dominos_en_main) == 4 & len(j6.dominos_en_main) == 4
     print("-------------- TEST REUSSI -------------------")
 
-# test_distribution_dominos()
+# test_on_dominos()
 
 def test_premier_joueur():
     print("----------------------------------------------")
@@ -404,4 +404,24 @@ def test_premier_joueur():
 
 # test_premier_joueur()
 
+def test_pioche():
+    print("----------------------------------------------")
+    print("Partie > Pioche")
+    print("----------------------------------------------")
+    partie1 = Partie()
+    partie1.ajouter_joueur("JoueurUn")
+    partie1.ajouter_joueur('JoueurDeux')
+    # partie1.jeux_complet()
+    j1 = partie1.joueurs[0]
+    partie1.distribue_dominos()
+    partie1.affiche_joueurs_mains()
+    partie1.pioche()
 
+test_pioche()
+
+# def pioche(self):
+#         domino = None
+#         if len(self._pioche) > 0:
+#             domino = sample(self._pioche, 1)
+#             self._pioche.remove(domino)
+#         return domino
