@@ -417,7 +417,7 @@ def test_pioche():
     partie1.affiche_joueurs_mains()
     partie1.pioche()
 
-test_pioche()
+# test_pioche()
 
 # def pioche(self):
 #         domino = None
