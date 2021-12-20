@@ -17,7 +17,7 @@ def tour_joueur(partie, joueur):
         partie.affiche_plateau()
         # on affiche les dominos du joueur courant
         joueur.affiche_main_et_positions()
-        jeu = input(f"{joueur.name} quel domino voulez-vous déposer ? \nposition OU auto OU aucun OU exit:\n")
+        jeu = input(f"{joueur.name} quel domino voulez-vous déposer ? position OU auto OU aucun OU exit:\n")
         # Le joueur ne peut pas déposer un domino
         # on passe au joueur suivant, donc on sort de la boucle
         if jeu is None or len(jeu) == 0:
@@ -29,8 +29,7 @@ def tour_joueur(partie, joueur):
                 continuer_a_jouer = False
                 break
             elif "auto" in jeu:
-                partie.tour_auto(joueur)
-                return len(joueur.dominos_en_main) > 0
+                return partie.tour_auto(joueur)
             elif "aucun" in jeu and pioche:
                 continuer_tour = False
                 break
@@ -124,7 +123,7 @@ def play():
                     # Boucle des tours pour 1 joueur (erreur de saisie et pioche)
                     joueur = partie.joueur_suivant()
                     if "ordinateur" in joueur.type:
-                        partie.tour_auto(joueur)
+                        continuer_a_jouer = partie.tour_auto(joueur)
                     else:
                         continuer_a_jouer = tour_joueur(partie, joueur)
                 
@@ -144,4 +143,11 @@ def play():
     
 
 play()
-# Si un joueur n’a pas de domino qu’il puisse poser, il pioche un domino (sans le monter aux autres joueurs). S’il peut le poser, il le fait immédiatement, sinon il l’ajoute à ces dominos. Si la pioche est épuisée, le joueur passe son tour.
+# Si un joueur n’a pas de domino qu’il puisse poser, 
+# il pioche un domino (sans le montrer aux autres joueurs). 
+# S’il peut le poser, il le fait immédiatement, sinon il l’ajoute à ces dominos. 
+# Si la pioche est épuisée, le joueur passe son tour.
+
+# TODO :
+# - Corriger le bug de l'ordinateur qui gagne
+# - Traiter le cas du jeux bloqué => aucun joueur ne peut poser de domino et pioche vide

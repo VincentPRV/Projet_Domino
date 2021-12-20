@@ -118,6 +118,7 @@ class Partie:
         for domino in self._plateau:
             print(domino, end="")
         print("")
+        print("------------------------------------")
     
     def affiche_joueurs_mains(self):
         for joueur in self._joueurs:
@@ -286,7 +287,6 @@ class Partie:
             partie (Partie): [description]
             joueur (Joueur): [description]
         """
-        
         # On affiche le plateau
         self.affiche_plateau()
         # on affiche les dominos du joueur courant
@@ -298,6 +298,10 @@ class Partie:
         else:
             dom = sample(dominos, 1)[0]
             self.deposer_domino_auto(joueur, dom)
+        # on traite le cas où le cas où il n'y a plus de domino en main
+        # on affiche les dominos du joueur courant
+        print(joueur)
+        return len(joueur.dominos_en_main) > 0
         
 
     @property
