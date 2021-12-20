@@ -50,7 +50,7 @@ class Partie:
             else : 
                 raise Exception ('La création de joueur doit être de type str ou obj !')
         else :
-            raise Exception("Il ne peut pas y avoir plus de 6 joueurs")
+            raise Nombre_Joueurs_Exception()
         return res
 
     def distribue_dominos(self):
@@ -90,18 +90,25 @@ class Partie:
         Returns:
             [type]: [description]
         """
-        domino = self.pioche()
+        domino = self.pioche(joueur)
         if domino is not None:
-            joueur.ajouter_domino(domino)
             self.deposer_domino_auto(joueur, domino)
         return domino
 
-    def pioche(self):
+    def peut_piocher(self, joueur):
+        dominos = joueur.dominos_compatibles(self.domino_a_gauche, self.domino_a_droite)
+        return len(dominos) == 0
+
+    def pioche(self, joueur):
         """[summary]
 
         Returns:
             [type]: [description]
         """
+         # On vérifie que le joueur n'a pas un domino compatible dans son jeu
+        dominos = joueur.dominos_compatibles(self.domino_a_gauche, self.domino_a_droite)
+        if len(dominos) > 0:
+            raise Pioche_Interdite_Domino_Compatibles()
         domino = None
         print("Pioche:", end="")
         if len(self._pioche) > 0:
@@ -110,6 +117,9 @@ class Partie:
                 domino = domino[0] 
                 self._pioche.remove(domino)
         print(domino)
+        # On ajoute le domino à la main du joueur
+        if domino is not None:
+            joueur.ajouter_domino(domino)
         return domino
 
     def affiche_plateau(self):
@@ -136,6 +146,34 @@ class Partie:
         if len(self._plateau) == 0:
             raise Exception("Aucun domino sur le plateau")
         return self._plateau[-1].valeur_a_droite
+
+
+    def jouer_domino(self, joueur, domino, cote):
+        # On vérifie que ce joueur peut bien jouer
+        if self.joueur_courant != joueur:
+            raise Jouer_Domino_Exception(f"Le joueur {joueur} ne peut pas jouer, il s'agit du tour du joueur {self.joueur_courant}")
+        if cote is not None and domino is not None:
+            cote = cote.lower()
+            if "i" in cote :
+                domino.inverse()
+            if "g" in cote:
+                if self.deposer_domino_a_gauche(joueur, domino):
+                    return True
+                else:
+                    raise Jouer_Domino_Exception(f"Impossible de déposer le domino tel que : {domino} <> {self.domino_a_gauche()}")
+            elif "d" in cote:
+                if self.deposer_domino_a_droite(joueur, domino):
+                    return True
+                else:
+                    raise Jouer_Domino_Exception(f"Impossible de déposer le domino tel que : {self.domino_a_droite()} <> {domino}")
+            else:
+                raise Jouer_Domino_Exception("Erreur de côté de position (g ou d ou ig ou id)")  
+        else:
+            if cote is None :
+                raise Jouer_Domino_Exception("Erreur de côté de position (g ou d ou ig ou id)")
+            else:
+                raise Jouer_Domino_Exception("Erreur de sélection du Domino")
+
 
     def deposer_domino_auto(self, joueur, domino, inverse=False):
         """Tente de deposer le domino des deux côtés et en inversant le domino
