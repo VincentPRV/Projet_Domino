@@ -103,11 +103,13 @@ class Partie:
             [type]: [description]
         """
         domino = None
+        print("Pioche:", end="")
         if len(self._pioche) > 0:
             domino = sample(self._pioche, 1)
             if domino is not None:
                 domino = domino[0] 
                 self._pioche.remove(domino)
+        print(domino)
         return domino
 
     def affiche_plateau(self):
@@ -367,12 +369,12 @@ class Partie:
                 if position in "droite":
                     # Vérifier que la valeur de gauche du domino = la valeur de droite du dernier domino du plateau
                     domino_plateau = self.domino_a_droite()
-                    if domino.valeur_a_gauche == domino_plateau:
+                    if domino.valeur_a_gauche == domino_plateau or domino.valeur_a_gauche == 0 or domino_plateau==0:
                         self._plateau.append(domino)
                         ajout_success = True
                 elif position in "gauche":
                     domino_plateau = self.domino_a_gauche()
-                    if domino.valeur_a_droite == domino_plateau:
+                    if domino.valeur_a_droite == domino_plateau or domino.valeur_a_droite == 0 or domino_plateau==0:
                         self._plateau.insert(0, domino)
                         ajout_success = True
                 else:

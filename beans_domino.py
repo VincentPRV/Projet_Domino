@@ -169,11 +169,32 @@ class Joueur:
         """
         main = ""
         for domino in self._dominos_en_main:
-            main += f"{domino},"
-        if len(main)>2:
-            main = main[:-1]
+            main += f"{domino} "
         return main
 
+    def str_position(self):
+        """Construit une chaine représentant la position de chaque domino en main du joueur
+
+        Returns:
+            str: Chaine représentant la position des domino en  main du joueur
+        """
+        main = ""
+        for i in range(0, len(self._dominos_en_main)):
+            main += f"[ {i} ] "
+        return main
+
+    def affiche_main_et_positions(self):
+        prefix_main = f"{self.name}: {len(self._dominos_en_main)}=>"
+        prefix_position = "positions:"
+        taille_pos = len(prefix_position)
+        # Formatage de la sortie pour que les dominos et leurs positions soient alignés
+        if len(prefix_main) < taille_pos:
+            prefix_main = prefix_main +" "*(taille_pos - len(prefix_main))
+        else:
+            prefix_position = prefix_position+" "*(len(prefix_main) - taille_pos)
+        print(prefix_main+self.str_main())
+        print(prefix_position + self.str_position())
+        
     @property
     def dominos_en_main(self):
         # On retourne une copie de la main pour éviter les modifications de la liste
@@ -412,6 +433,9 @@ def test_joueur():
     test_joueur_constructeur()
     test_joueur_exception()
     j1 = test_joueur_ajouter_domino()
+    j1.affiche_main_et_positions()
+    j1.name="ARA"
+    j1.affiche_main_et_positions()
     test_joueur_retirer_domino()
     test_joueur_maxi_double()
     test_joueur_maxi_domino()

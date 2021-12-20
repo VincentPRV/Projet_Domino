@@ -16,7 +16,7 @@ def tour_joueur(partie, joueur):
         # On affiche le plateau
         partie.affiche_plateau()
         # on affiche les dominos du joueur courant
-        print(joueur)
+        joueur.affiche_main_et_positions()
         jeu = input(f"{joueur.name} quel domino voulez-vous déposer ? \nposition OU auto OU aucun OU exit:\n")
         # Le joueur ne peut pas déposer un domino
         # on passe au joueur suivant, donc on sort de la boucle
@@ -114,6 +114,8 @@ def play():
             # il faut récupérer l'indice du premier joueur pour initier les tours
             joueur, premier_domino = partie.premier_joueur()
             print(joueur.name)
+            # on affiche les dominos du 1er joueur
+            print(joueur)
             if partie.deposer_premier_domino(joueur, premier_domino):
                 # La partie est initialisée
                 continuer_a_jouer = True
