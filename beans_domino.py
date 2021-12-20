@@ -3,6 +3,37 @@ Ce fichier contient toutes les classes utilisées pour ce projet
 """
 from random import randint
 
+class Jouer_Domino_Exception(Exception):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+class Nombre_Joueurs_Exception(Exception):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self):
+        self.message = "Il doit y avoir au moins 1 joueur et moins de 7 joueurs"
+
+class Pioche_Interdite_Domino_Compatibles(Exception):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self):
+        self.message = "Vous ne pouvez pas piocher un domino si vous disposez d'au moins un domino compatible."
+
+
 class Domino:
     """Cette classe représente un Domino
     """
