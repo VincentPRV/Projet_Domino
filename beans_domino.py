@@ -213,7 +213,23 @@ class Joueur:
             elif domino > max_domino :
                 max_domino = domino
         return max_domino
-              
+
+    def nb_domino_avec_la_valeur(self, valeur_recherchee):
+        """Compte le nombre de domino en main avec la valeur recherchée.
+        Un domino double ne compte qu'une fois
+
+        Args:
+            valeur_recherchee (int): valeur à compter
+
+        Returns:
+            int: Le nombre de domino avec la valeur reçue (ou 0 si aucune)
+        """
+        nb = 0
+        for dom in self._dominos_en_main:
+            if dom.valeur_a_droite == valeur_recherchee or dom.valeur_a_gauche == valeur_recherchee:
+                nb += 1
+        return nb
+
     def maxi_double(self):
         """Recherche le domino double en main avec la plus grande valeur
 
