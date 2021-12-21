@@ -339,8 +339,6 @@ def test_domino():
     test_domino_est_compatible()
     test_domino_equals()
     print("Domino > END")
-    
-# test_domino()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # JOUEURS
@@ -473,4 +471,8 @@ def test_joueur():
     test_joueur_dominos_compatibles()
     print("Joueur > END")
 
-# test_joueur()
+
+
+if __name__ == "__main__":
+    test_domino()
+    test_joueur()

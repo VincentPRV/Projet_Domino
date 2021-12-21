@@ -433,34 +433,15 @@ class Partie:
 #                                              TESTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# def test_partie():
-#     partie1 = Partie()
-#     partie1.ajouter_joueur("Vincent")
-#     partie1.ajouter_joueur("Aurélie")
-#     partie1.ajouter_joueur("Toto")
-#     partie1.affiche_joueurs_mains()
-#     partie1.distribue_dominos()
-#     partie1.affiche_joueurs_mains()
-#     partie1.affiche_pioche()
-#     print( "premier joueur = ", partie1.premier_joueur())
-#     return partie1
-
-# jeux = Partie.jeux_complet()
-# print(len(jeux), jeux)
-
-# test_partie()
-
 def test_jeux_complet():
     print("----------------------------------------------")
     print("Partie > jeux_complet")
     print("----------------------------------------------")
     jeux = Partie.jeux_complet()
     print(jeux)
-    for i in jeux :#
-            print (i[0])
-    # print(lst)
+    for i in jeux :
+        print (i[0])
     
-#test_jeux_complet()   
    
 def test_ajouter_joueur(): 
     print("----------------------------------------------")
@@ -492,7 +473,6 @@ def test_ajouter_joueur():
         print( "test de la limite maximun de 6 joueurs par partie : OK")
         assert True
     print("-------------- TEST REUSSI -------------------")
-# test_ajouter_joueur()
 
 def test_distribution_dominos():
     print("----------------------------------------------")
@@ -531,8 +511,6 @@ def test_distribution_dominos():
     assert len(j1.dominos_en_main) == 4 & len(j2.dominos_en_main) == 4 & len(j3.dominos_en_main) == 4 & len(j4.dominos_en_main) == 4 & len(j5.dominos_en_main) == 4 & len(j6.dominos_en_main) == 4
     print("-------------- TEST REUSSI -------------------")
 
-# test_distribution_dominos()
-
 def test_premier_joueur():
     print("----------------------------------------------")
     print("Partie > premier_joueur")
@@ -568,4 +546,10 @@ def test_premier_joueur():
     print( "test avec deux joueurs (avec double): ",partie1.premier_joueur())
     print("-------------- TEST REUSSI -------------------")
 
-# test_premier_joueur()
+
+if __name__ == "__main__":
+    test_jeux_complet()
+    test_ajouter_joueur()
+    test_premier_joueur()
+    test_distribution_dominos()
+
