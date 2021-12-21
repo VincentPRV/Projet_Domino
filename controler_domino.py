@@ -334,8 +334,17 @@ class Partie:
         if len(dominos)==0:
             self.pioche_auto(joueur)
         else:
-            dom = sample(dominos, 1)[0]
-            self.deposer_domino_auto(joueur, dom)
+            # Ajout d'un peu d'IA, on pose le domino compatible
+            # qui a le plus de points au lieu de le sélectionner en aléaoire
+            # dom = sample(dominos, 1)[0]
+            max = None
+            for dom in dominos:
+                if max == None:
+                    max = dom
+                else:
+                    if dom > max:
+                        max = dom
+            self.deposer_domino_auto(joueur, max)
         # on traite le cas où le cas où il n'y a plus de domino en main
         # on affiche les dominos du joueur courant
         print(joueur)
