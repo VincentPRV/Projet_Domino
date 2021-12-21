@@ -28,12 +28,13 @@ class Partie:
             jeux_complet.append(Domino(i, i))
         return jeux_complet
     
-    def __init__(self, partie_name=""):
+    def __init__(self, partie_name="", niveau_ia=1):
         self._joueurs = []
         self._pioche = None
         self._plateau = []
         self.partie_name = partie_name
         self._joueur_courant_position = 0
+        self._niveau_ia=niveau_ia
 
     def ajouter_ordinateur(self):
         self.ajouter_joueur(Joueur("Ordinateur", "ordinateur"))
@@ -318,6 +319,23 @@ class Partie:
                 pos += 1
         return premier_joueur, premier_domino
     
+    def nb_domino_avec_la_valeur(self, valeur_recherchee):
+        """Compte le nombre de domino dans la pioche avec la valeur recherchée.
+        Un domino double ne compte qu'une fois
+
+        Args:
+            valeur_recherchee (int): valeur à compter
+
+        Returns:
+            int: Le nombre de domino avec la valeur reçue (ou 0 si aucune)
+        """
+        nb = 0
+        for dom in self._plateau:
+            if dom.valeur_a_droite == valeur_recherchee or dom.valeur_a_gauche == valeur_recherchee:
+                nb += 1
+        return nb
+
+
     def tour_auto(self, joueur):
         """Joue le tour automatiquement ou semi automatiquement
 
@@ -334,17 +352,27 @@ class Partie:
         if len(dominos)==0:
             self.pioche_auto(joueur)
         else:
+            domi = None
             # Ajout d'un peu d'IA, on pose le domino compatible
             # qui a le plus de points au lieu de le sélectionner en aléaoire
-            # dom = sample(dominos, 1)[0]
-            max = None
-            for dom in dominos:
-                if max == None:
-                    max = dom
-                else:
-                    if dom > max:
-                        max = dom
-            self.deposer_domino_auto(joueur, max)
+            if self._niveau_ia == 1: 
+                for dom in dominos:
+                    if domi == None:
+                        domi = dom
+                    else:
+                        if dom > domi:
+                            domi = dom
+            # Domino max qui permettrait de bloquer le jeu
+            elif self._niveau_ia == 2:
+                domi = self._ia_2(joueur, dominos)
+            elif self._niveau_ia == 3:
+                domi = self._ia_3(joueur, dominos)
+                
+            # Echec des IA ou Pas d'IA, tirage aléatoire
+            if domi is None:
+                domi = sample(dominos, 1)[0]
+
+            self.deposer_domino_auto(joueur, domi)
         # on traite le cas où le cas où il n'y a plus de domino en main
         # on affiche les dominos du joueur courant
         print(joueur)
@@ -437,6 +465,108 @@ class Partie:
             # on retire le domino du joueur
             joueur.retirer_domino(domino)
         return ajout_success
+
+    def _ia_2(self, joueur, dominos):
+        """Détermine le domino qui a une valeur déjà utilisée plusieurs fois,
+        qui a donc le plus de chance de bloquer le jeu et qui a le plus de points
+
+        Args:
+            joueur (Joueur): [description]
+            dominos (List(Domino)): Liste des Dominos
+
+        Returns:
+            Domino: Le domino à jouer ou None
+        """
+        # dans la liste des dominos compatibles
+                # Compter le nombre de domino d'un valeur
+        domi = None
+        _, valeurs = self._ia_nb_occur_domino(joueur, dominos)
+        
+        # ensuite nous prenons les dominos qui ont le plus grand nombre
+        max_occu = max(list(valeurs.keys()))
+        # On sélectionne le domino qui a le plus de point dans la liste des dominos qui est le plus présent
+        dominos = valeurs.get(max_occu)
+        if dominos is not None:
+            for dom in dominos:
+                if domi == None:
+                    domi = dom
+                else:
+                    if dom > domi:
+                        domi = dom
+        return domi  
+
+    def _ia_3(self, joueur, dominos):
+        """Détermine le domino qui a une valeur déjà utilisée plusieurs fois et qui n'est pas le côté à placer,
+        qui a donc le plus de chance de bloquer le jeu et qui a le plus de points
+
+        Args:
+            joueur (Joueur): [description]
+            dominos (List(Domino)): Liste des Dominos
+
+        Returns:
+            Domino: Le domino à jouer ou None
+        """
+        # dans la liste des dominos compatibles
+                # Compter le nombre de domino d'un valeur
+        domi = None
+        nb_val_occur_by_val, valeurs = self._ia_nb_occur_domino(joueur, dominos)
+        
+        keys = sorted(list(valeurs.keys()), reverse=True)
+
+        # on parcours la liste des dominos de ceux qui ont le plus d'occurrence au moins d'occurrence
+        for cle in keys:
+            list_dom = valeurs.get(cle, [])
+            for do in list_dom:
+                # on regarde si la face qui a ce nombre d'occurrence est la face à placer
+                nb = nb_val_occur_by_val.get(do.valeur_a_gauche)
+                # le domino a le nombre d'occurrences attendu
+                if nb == cle:
+                    # on vérifie qu'il ne s'agit pas de la face à "coller"
+                    if do.valeur_a_gauche != self.domino_a_droite and do.valeur_a_gauche != self.domino_a_gauche:
+                        domi = do
+                if domi is None:
+                    # on regarde si la face qui a ce nombre d'occurrence est la face à placer
+                    nb = nb_val_occur_by_val.get(do.valeur_a_droite)
+                    # le domino a le nombre d'occurrences attendu
+                    if nb == cle:
+                        # on vérifie qu'il ne s'agit pas de la face à "coller"
+                        if do.valeur_a_droite != self.domino_a_droite and do.valeur_a_droite != self.domino_a_gauche:
+                            domi = do
+                # sinon on passe au domino suivant
+        # si aucun résultat à ce niveau d'IA, on passe au niveau précédent
+        if domi is None:
+            domi = self._ia_2(joueur, dominos)
+        return domi
+    
+    def _ia_nb_occur_domino(self, joueur, dominos):
+        """Compte le nombre d'occurrences des dominos de la liste
+
+        Args:
+            joueur (Joueur): [description]
+            dominos (List(Domino)): Liste des Dominos
+
+        Returns:
+            (Dict(int, int), Dict(int, List)): (Dict(valeur du domino, nombre d'occurrence), Dict(nombre d'occurences, List des dominos))
+        """
+        valeurs = {}
+        nb_val_occur_by_val = {}
+        for dom in dominos:
+            val_droite = dom.valeur_a_droite
+            val_gauche = dom.valeur_a_gauche
+            # pour ne faire qu'une fois le traitement par valeur
+            if nb_val_occur_by_val.get(val_droite, None) is None:
+                nb = joueur.nb_domino_avec_la_valeur(val_droite) + self.nb_domino_avec_la_valeur(val_droite)
+                ma_liste = valeurs.get(nb, [])
+                nb_val_occur_by_val[val_droite] = nb
+                ma_liste.append(dom)
+                valeurs[nb] = ma_liste
+            if nb_val_occur_by_val.get(val_gauche, None) is None:
+                nb = joueur.nb_domino_avec_la_valeur(val_gauche) + self.nb_domino_avec_la_valeur(val_gauche)
+                ma_liste = valeurs.get(val_gauche, [])
+                nb_val_occur_by_val[val_gauche] = nb
+                ma_liste.append(dom)
+                valeurs[nb] = ma_liste
+        return nb_val_occur_by_val, valeurs
             
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                              TESTS
@@ -554,9 +684,41 @@ def test_premier_joueur():
     print("-------------- TEST REUSSI -------------------")
 
 
+def test_ia_nb_occur_domino():
+    partie = Partie("my partie", 3)
+    # ajouter des dominos sur le plateau
+    j1 = Joueur("My Joueur")
+    j1.ajouter_domino(Domino(1, 6))
+    j1.ajouter_domino(Domino(5 ,3))
+    j1.ajouter_domino(Domino(5 ,4))
+    j1.ajouter_domino(Domino(2 ,4))
+    j1.ajouter_domino(Domino(3 ,4))
+    partie._plateau.append(Domino(4, 6))
+    partie._plateau.append(Domino(6, 6))
+    partie._plateau.append(Domino(6, 5))
+    partie.affiche_plateau()
+    dominos = j1.dominos_compatibles(partie.domino_a_gauche(), partie.domino_a_droite())
+    nb_val_occur_by_val, valeurs = partie._ia_nb_occur_domino(j1, dominos)
+    # contrôle du résultat attendu
+    expected_keys = [3, 5, 4, 2]
+    expected_dic = {3: 2, 5: 3, 4: 4, 2: 1}
+    for key, val in nb_val_occur_by_val.items():
+        assert key in expected_keys
+        assert expected_dic[key] == val
+
+    # contrôle du résultat attendu
+    expected_dic = {2: [Domino(5 ,3), Domino(2 ,4)], 3: [Domino(5 ,3)], 4: [Domino(5 ,4)], 1: [Domino(5 ,3), Domino(2 ,4)]}
+    expected_keys = [2, 3, 4, 1]
+    for key, val in nb_val_occur_by_val.items():
+        assert key in expected_keys
+        assert expected_dic[key] == val
+
+
+
 if __name__ == "__main__":
     test_jeux_complet()
     test_ajouter_joueur()
     test_premier_joueur()
     test_distribution_dominos()
+    test_ia_nb_occur_domino()
 

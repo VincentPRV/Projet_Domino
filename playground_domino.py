@@ -80,11 +80,20 @@ def play():
     i = 0
     while reponse not in "exit":
         i += 1
-        partie = Partie("Partie "+str(i))
+        print("##########################################################################")
+        print("#                 Bienvenue dans le jeu de dominos                       #")
+        print("##########################################################################")
+        print("Nouvelle partie !                               'exit' pour sortir du jeu")
+        niveau_ia = input("Niveau d'IA souhaité (0, 1, 2, 3):")
+        if "0" in niveau_ia or "1" in niveau_ia or "2" in niveau_ia or "3" in niveau_ia:
+            niveau_ia = int(niveau_ia)
+        else:
+            niveau_ia = 0
+        partie = Partie("Partie "+str(i), niveau_ia=niveau_ia)
         # Ajout des joueurs
         joueur_name = "Player"
         while joueur_name not in "stop" and joueur_name not in "exit":
-            joueur_name = input("Saisissez le nom du joueur (ou exit ou stop):")
+            joueur_name = input("Nom du joueur (ou exit ou stop):")
             if joueur_name not in "stop" and joueur_name not in "exit":
                 try:
                     partie.ajouter_joueur(joueur_name)
