@@ -150,8 +150,8 @@ class Partie:
 
     def jouer_domino(self, joueur, domino, cote):
         # On vérifie que ce joueur peut bien jouer
-        if self.joueur_courant != joueur:
-            raise Jouer_Domino_Exception(f"Le joueur {joueur} ne peut pas jouer, il s'agit du tour du joueur {self.joueur_courant}")
+        # if self.joueur_courant().name != joueur.name:
+        #     raise Jouer_Domino_Exception(f"Le joueur {joueur} ne peut pas jouer, il s'agit du tour du joueur {self.joueur_courant}")
         if cote is not None and domino is not None:
             cote = cote.lower()
             if "i" in cote :
