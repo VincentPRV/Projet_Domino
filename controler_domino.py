@@ -97,7 +97,64 @@ class Partie:
     def affiche_pioche(self):
         print(f"Pioche:{len(self._pioche)}=>{self._pioche}")
     
-    def deposer_domino_a_gauche(self, domino):
+    def domino_a_gauche(self):
+        if len(self._plateau) == 0:
+            raise Exception("Aucun domino sur le plateau")
+        return self._plateau[0].valeur_a_gauche
+
+    def domino_a_droite(self):
+        if len(self._plateau) == 0:
+            raise Exception("Aucun domino sur le plateau")
+        return self._plateau[-1].valeur_a_droite
+
+
+    def jouer_domino(self, joueur, domino, cote):
+        # On vérifie que ce joueur peut bien jouer
+        # if self.joueur_courant().name != joueur.name:
+        #     raise Jouer_Domino_Exception(f"Le joueur {joueur} ne peut pas jouer, il s'agit du tour du joueur {self.joueur_courant}")
+        if cote is not None and domino is not None:
+            cote = cote.lower()
+            if "i" in cote :
+                domino.inverse()
+            if "g" in cote:
+                if self.deposer_domino_a_gauche(joueur, domino):
+                    return True
+                else:
+                    raise Jouer_Domino_Exception(f"Impossible de déposer le domino tel que : {domino} <> {self.domino_a_gauche()}")
+            elif "d" in cote:
+                if self.deposer_domino_a_droite(joueur, domino):
+                    return True
+                else:
+                    raise Jouer_Domino_Exception(f"Impossible de déposer le domino tel que : {self.domino_a_droite()} <> {domino}")
+            else:
+                raise Jouer_Domino_Exception("Erreur de côté de position (g ou d ou ig ou id)")  
+        else:
+            if cote is None :
+                raise Jouer_Domino_Exception("Erreur de côté de position (g ou d ou ig ou id)")
+            else:
+                raise Jouer_Domino_Exception("Erreur de sélection du Domino")
+
+
+    def deposer_domino_auto(self, joueur, domino, inverse=False):
+        """Tente de deposer le domino des deux côtés et en inversant le domino
+
+        Args:
+            joueur (Joueur): Joueur en cours
+            domino (Domino): Domino à déposer
+            inverse (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            [type]: [description]
+        """
+        res = self.deposer_domino_a_gauche(joueur, domino)
+        if not res:
+            res = self.deposer_domino_a_droite(joueur, domino)
+            if not res and not inverse:
+                domino.inverse()
+                res = self.deposer_domino_auto(joueur, domino, inverse=True)
+        return res
+
+    def deposer_domino_a_gauche(self, joueur, domino):
         """ Ajoute le domino à la chaine
         Args:
             domino (Domino): le domino à ajouter
@@ -267,34 +324,15 @@ class Partie:
 #                                              TESTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# def test_partie():
-#     partie1 = Partie()
-#     partie1.ajouter_joueur("Vincent")
-#     partie1.ajouter_joueur("Aurélie")
-#     partie1.ajouter_joueur("Toto")
-#     partie1.affiche_joueurs_mains()
-#     partie1.distribue_dominos()
-#     partie1.affiche_joueurs_mains()
-#     partie1.affiche_pioche()
-#     print( "premier joueur = ", partie1.premier_joueur())
-#     return partie1
-
-# jeux = Partie.jeux_complet()
-# print(len(jeux), jeux)
-
-# test_partie()
-
-# def test_jeux_complet():
-#     print("----------------------------------------------")
-#     print("Partie > jeux_complet")
-#     print("----------------------------------------------")
-#     jeux = Partie.jeux_complet()
-#     print(jeux)
-#     for domino in jeux :
-        # domino == Domino(0,0)
-        # print(lst)
+def test_jeux_complet():
+    print("----------------------------------------------")
+    print("Partie > jeux_complet")
+    print("----------------------------------------------")
+    jeux = Partie.jeux_complet()
+    print(jeux)
+    for i in jeux :
+        print (i[0])
     
-# test_jeux_complet()   
    
 def test_ajouter_joueur(): 
     print("----------------------------------------------")
@@ -326,9 +364,8 @@ def test_ajouter_joueur():
         print( "test de la limite maximun de 6 joueurs par partie : OK")
         assert True
     print("-------------- TEST REUSSI -------------------")
-# test_ajouter_joueur()
 
-def test_on_dominos():
+def test_distribution_dominos():
     print("----------------------------------------------")
     print("Partie > distribue_dominos")
     print("----------------------------------------------")
@@ -365,8 +402,6 @@ def test_on_dominos():
     assert len(j1.dominos_en_main) == 4 & len(j2.dominos_en_main) == 4 & len(j3.dominos_en_main) == 4 & len(j4.dominos_en_main) == 4 & len(j5.dominos_en_main) == 4 & len(j6.dominos_en_main) == 4
     print("-------------- TEST REUSSI -------------------")
 
-# test_on_dominos()
-
 def test_premier_joueur():
     print("----------------------------------------------")
     print("Partie > premier_joueur")
@@ -402,26 +437,10 @@ def test_premier_joueur():
     print( "test avec deux joueurs (avec double): ",partie1.premier_joueur())
     print("-------------- TEST REUSSI -------------------")
 
-# test_premier_joueur()
 
-def test_pioche():
-    print("----------------------------------------------")
-    print("Partie > Pioche")
-    print("----------------------------------------------")
-    partie1 = Partie()
-    partie1.ajouter_joueur("JoueurUn")
-    partie1.ajouter_joueur('JoueurDeux')
-    # partie1.jeux_complet()
-    j1 = partie1.joueurs[0]
-    partie1.distribue_dominos()
-    partie1.affiche_joueurs_mains()
-    partie1.pioche()
+if __name__ == "__main__":
+    test_jeux_complet()
+    test_ajouter_joueur()
+    test_premier_joueur()
+    test_distribution_dominos()
 
-# test_pioche()
-
-# def pioche(self):
-#         domino = None
-#         if len(self._pioche) > 0:
-#             domino = sample(self._pioche, 1)
-#             self._pioche.remove(domino)
-#         return domino
