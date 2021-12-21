@@ -119,6 +119,59 @@ class Domino:
         equa = equa or (self.valeur_a_droite == other.valeur_a_gauche and self.valeur_a_gauche == other.valeur_a_droite)
         return equa
 
+    # Less Than
+    def __lt__(self, other):
+        if isinstance(other, Domino):          
+            return self.score() < other.score()
+        if isinstance(other, int):
+            self.score() < other
+        return NotImplemented
+
+    # Less Than or equals
+    def __le__(self, other):
+        if isinstance(other, Domino):          
+            return self.score() <= other.score()
+        if isinstance(other, int):
+            self.score() <= other
+        return NotImplemented
+
+    # Greater Than
+    def __gt__(self, other):
+        if isinstance(other, Domino):          
+            return self.score() > other.score()
+        if isinstance(other, int):
+            self.score() > other
+        return NotImplemented
+
+    # Greater Than or equals
+    def __ge__(self, other):
+        if isinstance(other, Domino):          
+            return self.score() >= other.score()
+        if isinstance(other, int):
+            self.score() >= other
+        return NotImplemented
+    
+    def __cmp__(self, other):
+        # Cas de comparaison avec un autre Domino
+        if isinstance(other, Domino):
+            if self == other:
+                return 0
+            elif self < other:
+                return -1
+            elif self > other:
+                return 1
+            other = other.score()
+        # Cas de comparaison avec un entier
+        if isinstance(other, int):
+            self_score = self.score()
+            if self_score < other:
+                return -1 
+            elif self_score > other:
+                return 1
+            else:
+                return 0
+        return NotImplemented
+
 
 class Joueur:
 
@@ -153,16 +206,12 @@ class Joueur:
         Returns:
             Domino: le domino qui a la valeur la plus grande
         """
-        max_score= None
         max_domino = None
         for domino in self.dominos_en_main:
-            if max_score == None:
-                max_score = domino.score()
+            if max_domino == None:
                 max_domino = domino
-            else :
-                if max_score is not None and max_score < domino.score() :
-                    max_score = domino.score()
-                    max_domino = domino
+            elif domino > max_domino :
+                max_domino = domino
         return max_domino
               
     def maxi_double(self):
@@ -176,7 +225,7 @@ class Joueur:
             if domino.est_double():
                 if maxi is None:
                     maxi = domino
-                elif domino.valeur_a_droite > maxi.valeur_a_droite:
+                elif domino > maxi:
                     maxi = domino
         return maxi
 
@@ -330,6 +379,21 @@ def test_domino_equals():
     assert mon_domino == mon_domino
     assert mon_domino != Domino(0, 5)
 
+def test_domino_less_than():
+    print("Domino > less than()")
+    mon_domino = Domino(5, 4)
+    mon_domino2 = Domino(6, 4)
+    assert mon_domino < mon_domino2
+    assert not mon_domino2 < mon_domino
+
+def test_domino_more_than():
+    print("Domino > less than()")
+    mon_domino = Domino(5, 4)
+    mon_domino2 = Domino(6, 4)
+    assert not mon_domino > mon_domino2
+    assert mon_domino2 > mon_domino
+    
+
 def test_domino():
     print("Domino > START")
     test_domino_constructeur()
@@ -338,6 +402,8 @@ def test_domino():
     test_domino_score()
     test_domino_est_compatible()
     test_domino_equals()
+    test_domino_less_than()
+    test_domino_more_than()
     print("Domino > END")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
